@@ -1,0 +1,26 @@
+# ninja log v5
+1	48	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+82	1211	7612493005988488	CMakeFiles/imgui.dir/external/imgui/imgui_tables.cpp.obj	521a8bd5e8d7c630
+68	1317	7612493007094089	CMakeFiles/imgui.dir/external/imgui/imgui_draw.cpp.obj	4ee058bea6fa1adc
+126	1868	7612493012579512	CMakeFiles/imgui.dir/external/imgui/backends/imgui_impl_dx11.cpp.obj	896124fd0b6950b4
+109	1408	7612493008060718	CMakeFiles/imgui.dir/external/imgui/backends/imgui_impl_win32.cpp.obj	b02c7f4d9323806d
+95	1486	7612493008743104	CMakeFiles/imgui.dir/external/imgui/imgui_widgets.cpp.obj	998defb021539e3f
+49	1934	7612493013170507	CMakeFiles/imgui.dir/external/imgui/imgui.cpp.obj	90ee01b432d76ebf
+14	53	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+71	145	7612493720911431	CMakeFiles/BinaryRealm.dir/src/main.cpp.obj	355ec1ca1516c530
+56	938	7612493727542383	imgui.lib	83dd467456bac806
+938	1113	7612493730483536	BinaryRealm.exe	41c9046a02ce9648
+25	75	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+78	472	7612496591084424	CMakeFiles/BinaryRealm.dir/src/main.cpp.obj	355ec1ca1516c530
+473	697	7612496593109709	BinaryRealm.exe	41c9046a02ce9648
+2	55	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+58	820	7612500481811957	CMakeFiles/BinaryRealm.dir/src/main.cpp.obj	355ec1ca1516c530
+821	1059	7612500483863080	BinaryRealm.exe	41c9046a02ce9648
+26	69	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+72	738	7612501117179918	CMakeFiles/BinaryRealm.dir/src/main.cpp.obj	355ec1ca1516c530
+739	949	7612501119034284	BinaryRealm.exe	41c9046a02ce9648
+19	62	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+65	462	7612503078489037	CMakeFiles/BinaryRealm.dir/src/main.cpp.obj	355ec1ca1516c530
+38	83	0	C:/Users/FrancescoCrocioni/Desktop/priv_fra/projects/binaryrealm/build/CMakeFiles/cmake.verify_globs	9ad228f76cac41a5
+86	465	7612503528487772	CMakeFiles/BinaryRealm.dir/src/main.cpp.obj	355ec1ca1516c530
+466	678	7612503530355724	BinaryRealm.exe	41c9046a02ce9648
