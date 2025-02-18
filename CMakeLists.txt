@@ -3,6 +3,7 @@ project(BinaryRealm)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find Windows SDK
 find_path(D3D11_INCLUDE_DIR d3d11.h PATHS "$ENV{WindowsSdkDir}/Include")
