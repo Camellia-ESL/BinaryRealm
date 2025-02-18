@@ -20,7 +20,7 @@ enum RWindowApi {
 // Represent's an abstracted window
 class RIWindow {
 public:
-  // Init a the window overlay
+  // Init the window
   virtual bool init() { return false; }
   // Process window messages
   virtual void process_messages() {}
