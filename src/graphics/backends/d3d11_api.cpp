@@ -9,6 +9,8 @@ bool RD3D11Api::init(void *p_native_handle) {
 
   DXGI_SWAP_CHAIN_DESC sd = {};
   sd.BufferCount = 2;
+  // sd.BufferDesc.Width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+  // sd.BufferDesc.Height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
   sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   sd.OutputWindow = hwnd;
@@ -100,7 +102,7 @@ void RD3D11Api::render() {
   p_swapchain->Present(1, 0);
 }
 
-RResult<RImage> RD3D11Api::load_img_from_file(const std::string &path) {
+RResult<RImage> RD3D11Api::load_img_from_file(const r_string &path) {
 
   int width, height, channels;
 

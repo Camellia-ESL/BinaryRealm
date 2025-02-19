@@ -20,6 +20,8 @@ public:
   }
   // Whether if the window is running or not
   bool is_running() const override { return !done; }
+  // Fetch monitor infos using EnumDisplayMonitors api
+  void fetch_monitors() override;
 
 private:
   HWND hwnd;

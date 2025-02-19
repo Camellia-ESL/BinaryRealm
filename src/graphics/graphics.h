@@ -33,7 +33,7 @@ public:
   virtual void render() {}
   // Load's an image from file then returns the texture resource ptr (ex. d3d11
   // returns D3D11ShaderResourceView*) ready to be passed to ImGui::Image()
-  virtual RResult<RImage> load_img_from_file(const std::string &path) {
+  virtual RResult<RImage> load_img_from_file(const r_string &path) {
     return RResult<RImage>::create_err(RError{"Method not implemented"});
   }
 };

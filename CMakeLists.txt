@@ -24,5 +24,5 @@ target_link_libraries(imgui PRIVATE d3d11 dxgi d3dcompiler)
 # Main executable
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 add_executable(BinaryRealm ${SRC_FILES})
-target_include_directories(BinaryRealm PRIVATE external/stb)
+target_include_directories(BinaryRealm PRIVATE external/stb external/nlohmannjson)
 target_link_libraries(BinaryRealm PRIVATE imgui d3d11 dxgi d3dcompiler)

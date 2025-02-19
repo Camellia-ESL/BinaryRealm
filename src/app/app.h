@@ -21,6 +21,11 @@ public:
   // other threads or called again by main thread
   void run(RWindowApi win_api, RGraphicsApi gfx_api);
 
+  // Get's the window handler
+  const RIWindow &get_window() const { return *window_; }
+  // Get's the graphics api handler
+  const RIGraphicsApi &get_graphics() const { return *graphics_; }
+
 private:
   std::shared_ptr<RIWindow> window_;
   std::shared_ptr<RIGraphicsApi> graphics_;

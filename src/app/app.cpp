@@ -1,7 +1,9 @@
 #include "app.h"
 
+#include "../config/config_manager.h"
 #include "../desktop/background.h"
 #include "../graphics/backends/d3d11_api.h"
+#include "../view/viewpool.h"
 #include "window_apis/win32_api.h"
 
 void RApp::run(RWindowApi win_api, RGraphicsApi gfx_api) {
@@ -16,11 +18,16 @@ void RApp::run(RWindowApi win_api, RGraphicsApi gfx_api) {
   window_->init();
   graphics_->init(window_->get_native_handle());
 
+  // Load the configs
+  RConfigsManager::get().load_all();
+
   while (window_->is_running()) {
     window_->process_messages();
     graphics_->begin_render();
 
     RDesktopBackgroundManager::get().render();
+
+    RViewPool::get().render();
 
     graphics_->render();
   }

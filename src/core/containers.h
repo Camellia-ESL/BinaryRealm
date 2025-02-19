@@ -1,19 +1,20 @@
 #pragma once
 
-#include <string>
+#include "string.h"
+
 #include <utility>
 
 // Represent an error
 class RError {
 public:
   RError() = default;
-  explicit RError(const std::string &msg) : msg_{std::move(msg)} {}
+  explicit RError(const r_string &msg) : msg_{std::move(msg)} {}
 
   // Returns the error message
-  const std::string &msg() { return msg_; }
+  const r_string msg() { return msg_; }
 
 private:
-  std::string msg_;
+  r_string msg_;
 };
 
 // Handle's the result of an execution with a return value.

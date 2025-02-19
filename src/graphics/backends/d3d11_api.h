@@ -18,7 +18,7 @@ public:
   // End's a frame, render's and present
   void render() override;
   // Load's a d3d11 image resource shader view from file
-  RResult<RImage> load_img_from_file(const std::string &path) override;
+  RResult<RImage> load_img_from_file(const r_string &path) override;
 
 private:
   ID3D11Device *p_d3d_device = nullptr;
