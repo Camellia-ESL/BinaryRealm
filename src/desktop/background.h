@@ -1,14 +1,16 @@
 #pragma once
 
+#include <memory>
+
 #include "../core/filesystem_utils.h"
 #include "../graphics/graphics.h"
-#include <memory>
+
 
 // [SINGLETON] Handles the interactions with the desktop background.
 class RDesktopBackgroundManager {
-public:
+ public:
   // Get's the instance of the singleton
-  static RDesktopBackgroundManager &get() {
+  static RDesktopBackgroundManager& get() {
     static RDesktopBackgroundManager instance{};
     return instance;
   }
@@ -19,7 +21,7 @@ public:
   // Set the current background
   void set_background(RImage img) { cur_bg_ = std::make_shared<RImage>(img); }
 
-private:
+ private:
   // The current background set
   std::shared_ptr<RImage> cur_bg_;
 };

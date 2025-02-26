@@ -1,52 +1,67 @@
 #pragma once
 
-#include "string.h"
-
 #include <utility>
+
+#include "string.h"
 
 // Represent an error
 class RError {
-public:
+ public:
   RError() = default;
-  explicit RError(const r_string &msg) : msg_{std::move(msg)} {}
+
+  explicit RError(r_string&& msg) : msg_{std::move(msg)} {}
+  explicit RError(const r_string& msg) : msg_{std::move(msg)} {}
 
   // Returns the error message
   const r_string msg() { return msg_; }
 
-private:
+ private:
   r_string msg_;
 };
 
 // Handle's the result of an execution with a return value.
 // If everything went fine it holds the result, an error otherwise
-template <typename ResType> class RResult {
-public:
+template <typename ResType>
+class RResult {
+ public:
   RResult() = default;
-  explicit RResult(const ResType &res) : res_(res) { success_ = true; }
-  explicit RResult(const RError &err) : err_(err) { success_ = false; }
+  explicit RResult(const ResType& res) : res_(res) { success_ = true; }
+  explicit RResult(const RError& err) : err_(err) { success_ = false; }
+  explicit RResult(ResType&& res) : res_(std::move(res)) { success_ = true; }
+  explicit RResult(RError&& err) : err_(std::move(err)) { success_ = false; }
 
   // Create a result holding a valid value
-  static RResult<ResType> create_ok(const ResType &res) {
+  static RResult<ResType> create_ok(ResType&& res) {
+    return RResult<ResType>(std::move(res));
+  }
+
+  // Create a result holding a valid value
+  static RResult<ResType> create_ok(const ResType& res) {
     return RResult<ResType>{res};
   }
 
   // Create a result holding an error
-  static RResult<ResType> create_err(const RError &err) {
+  static RResult<ResType> create_err(RError&& err) {
+    return RResult<ResType>{std::move(err)};
+  }
+
+  // Create a result holding an error
+  static RResult<ResType> create_err(const RError& err) {
     return RResult<ResType>{err};
   }
 
   // Get the result valutruee
   // NOTE: It is suggested to handle eventual errors before getting the result
   // value. (using ok() and err() method)
-  ResType &val() { return res_; }
+  ResType& val() { return res_; }
 
   // Get the result error
-  RError &err() { return err_; }
+  RError& err() { return err_; }
 
   // Whether if the result is success or an error
   const bool ok() const { return success_; }
 
-private:
+ private:
   ResType res_;
   RError err_;
   bool success_;

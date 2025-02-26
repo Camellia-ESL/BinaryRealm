@@ -1,17 +1,18 @@
 #include "d3d11_api.h"
+
 #include "../../../external/imgui/imgui.h"
 #include "../../../external/imgui/imgui_impl_dx11.h"
 #include "../../../external/imgui/imgui_impl_win32.h"
 #include "../../../external/stb/stb_image.h"
 
-bool RD3D11Api::init(void *p_native_handle) {
-  HWND hwnd = *((HWND *)p_native_handle);
+bool RD3D11Api::init(void* p_native_handle) {
+  HWND hwnd = *((HWND*)p_native_handle);
 
   DXGI_SWAP_CHAIN_DESC sd = {};
   sd.BufferCount = 2;
   // sd.BufferDesc.Width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
   // sd.BufferDesc.Height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-  sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
   sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   sd.OutputWindow = hwnd;
   sd.SampleDesc.Count = 1;
@@ -24,40 +25,56 @@ bool RD3D11Api::init(void *p_native_handle) {
 
   HRESULT res = D3D11CreateDeviceAndSwapChain(
       nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, feature_lvls, 2,
-      D3D11_SDK_VERSION, &sd, &p_swapchain, &p_d3d_device, &feature_lvl,
-      &p_d3d_device_context);
+      D3D11_SDK_VERSION, &sd, &p_swapchain_, &p_d3d_device_, &feature_lvl,
+      &p_d3d_device_context_);
 
-  if (FAILED(res))
-    return false;
+  if (FAILED(res)) return false;
   init_render_target();
+
+  // Blend state creation
+  D3D11_BLEND_DESC desc;
+  ZeroMemory(&desc, sizeof(desc));
+  desc.AlphaToCoverageEnable = false;
+  desc.RenderTarget[0].BlendEnable = true;
+  desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+  desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+  desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
+  desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+  desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+  // Create the blend state
+  HRESULT hr = p_d3d_device_->CreateBlendState(&desc, &p_blend_state_);
+  if (FAILED(hr)) return false;
 
   // Setup ImGui
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
+  ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
   io.ConfigViewportsNoDefaultParent = false;
 
   ImGui::StyleColorsDark();
   ImGui_ImplWin32_Init(hwnd);
-  ImGui_ImplDX11_Init(p_d3d_device, p_d3d_device_context);
+  ImGui_ImplDX11_Init(p_d3d_device_, p_d3d_device_context_);
 
   return true;
 }
 
 void RD3D11Api::init_render_target() {
-  ID3D11Texture2D *p_back_buffer;
-  p_swapchain->GetBuffer(0, IID_PPV_ARGS(&p_back_buffer));
-  p_d3d_device->CreateRenderTargetView(p_back_buffer, nullptr,
-                                       &p_main_render_target_view);
+  ID3D11Texture2D* p_back_buffer;
+  p_swapchain_->GetBuffer(0, IID_PPV_ARGS(&p_back_buffer));
+  p_d3d_device_->CreateRenderTargetView(p_back_buffer, nullptr,
+                                        &p_main_render_target_view_);
   p_back_buffer->Release();
 }
 
 void RD3D11Api::destroy_render_target() {
-  if (p_main_render_target_view) {
-    p_main_render_target_view->Release();
-    p_main_render_target_view = nullptr;
+  if (p_main_render_target_view_) {
+    p_main_render_target_view_->Release();
+    p_main_render_target_view_ = nullptr;
   }
 }
 
@@ -66,17 +83,17 @@ void RD3D11Api::destroy() {
   ImGui_ImplWin32_Shutdown();
   ImGui::DestroyContext();
   destroy_render_target();
-  if (p_swapchain) {
-    p_swapchain->Release();
-    p_swapchain = nullptr;
+  if (p_swapchain_) {
+    p_swapchain_->Release();
+    p_swapchain_ = nullptr;
   }
-  if (p_d3d_device_context) {
-    p_d3d_device_context->Release();
-    p_d3d_device_context = nullptr;
+  if (p_d3d_device_context_) {
+    p_d3d_device_context_->Release();
+    p_d3d_device_context_ = nullptr;
   }
-  if (p_d3d_device) {
-    p_d3d_device->Release();
-    p_d3d_device = nullptr;
+  if (p_d3d_device_) {
+    p_d3d_device_->Release();
+    p_d3d_device_ = nullptr;
   }
 }
 
@@ -88,26 +105,26 @@ void RD3D11Api::begin_render() {
 
 void RD3D11Api::render() {
   ImGui::Render();
+  p_d3d_device_context_->OMSetBlendState(p_blend_state_, nullptr, 0xFFFFFFFF);
   float clear_color[4] = {0, 0, 0, 0};
-  p_d3d_device_context->OMSetRenderTargets(1, &p_main_render_target_view,
-                                           nullptr);
-  p_d3d_device_context->ClearRenderTargetView(p_main_render_target_view,
-                                              clear_color);
+  p_d3d_device_context_->OMSetRenderTargets(1, &p_main_render_target_view_,
+                                            nullptr);
+  p_d3d_device_context_->ClearRenderTargetView(p_main_render_target_view_,
+                                               clear_color);
   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
   if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
   }
 
-  p_swapchain->Present(1, 0);
+  p_swapchain_->Present(1, 0);
 }
 
-RResult<RImage> RD3D11Api::load_img_from_file(const r_string &path) {
-
+RResult<RImage> RD3D11Api::load_img_from_file(const r_string& path) {
   int width, height, channels;
 
   // Load the image from file
-  unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 4);
+  unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 4);
 
   // Create a texture description
   D3D11_TEXTURE2D_DESC tex_desc = {};
@@ -124,15 +141,15 @@ RResult<RImage> RD3D11Api::load_img_from_file(const r_string &path) {
   // Create texture
   D3D11_SUBRESOURCE_DATA init_data = {};
   init_data.pSysMem = data;
-  init_data.SysMemPitch = width * 4; // RGBA
+  init_data.SysMemPitch = width * 4;  // RGBA
   init_data.SysMemSlicePitch = 0;
 
-  ID3D11Texture2D *texture = nullptr;
-  p_d3d_device->CreateTexture2D(&tex_desc, &init_data, &texture);
+  ID3D11Texture2D* texture = nullptr;
+  p_d3d_device_->CreateTexture2D(&tex_desc, &init_data, &texture);
 
   // Create shader resource view
-  ID3D11ShaderResourceView *texture_srv = nullptr;
-  p_d3d_device->CreateShaderResourceView(texture, nullptr, &texture_srv);
+  ID3D11ShaderResourceView* texture_srv = nullptr;
+  p_d3d_device_->CreateShaderResourceView(texture, nullptr, &texture_srv);
 
   // Release the texture (it's no longer needed after creating the SRV)
   texture->Release();

@@ -1,12 +1,13 @@
 #pragma once
 
+#include <Windows.h>
+
 #include "../window.h"
 
-#include <Windows.h>
 
 // Win32 native window handler abstraction
 class RWin32Api : public RIWindow {
-public:
+ public:
   RWin32Api();
   ~RWin32Api();
 
@@ -16,14 +17,14 @@ public:
   void process_messages() override;
   // Get's the native window handler (HWND*)
   RWindowNativeHandle get_native_handle() const override {
-    return (void *)&hwnd;
+    return (void*)&hwnd;
   }
   // Whether if the window is running or not
   bool is_running() const override { return !done; }
   // Fetch monitor infos using EnumDisplayMonitors api
   void fetch_monitors() override;
 
-private:
+ private:
   HWND hwnd;
   bool done = false;
   WNDCLASSEXW wc;

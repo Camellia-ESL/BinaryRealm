@@ -4,15 +4,13 @@
 #include "../app/app.h"
 
 void RDesktopBackgroundManager::render() {
-
   // If there is no background image set simply returns
-  if (!cur_bg_)
-    return;
+  if (!cur_bg_) return;
 
-  auto &io = ImGui::GetIO();
-  ImDrawList *draw_list = ImGui::GetBackgroundDrawList();
+  auto& io = ImGui::GetIO();
+  ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
 
-  const auto &monitors = RApp::get().get_window().get_monitors();
+  const auto& monitors = RApp::get().get_window().get_monitors();
 
   // Render the monitors, adjusting each one to align
   for (size_t i = 0; i < monitors.size(); ++i) {

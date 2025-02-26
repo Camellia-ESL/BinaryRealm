@@ -13,9 +13,12 @@
 // [SINGLETON] Handles all the configs of the application stored in the
 // configuration folder
 class RConfigsManager {
-public:
+ public:
+  // Get's the config dir path
+  static const r_string get_config_dir_path();
+
   // Get's the instance of the singleton
-  static RConfigsManager &get() {
+  static RConfigsManager& get() {
     static RConfigsManager instance{};
     return instance;
   }
@@ -26,6 +29,6 @@ public:
   // Save all the configs in the configuration folder
   void save_all();
 
-private:
+ private:
   RThemeManager theme_mngr_;
 };

@@ -1,17 +1,19 @@
 #pragma once
 
+#include <memory>
+
 #include "../graphics/graphics.h"
 #include "window.h"
-#include <memory>
+
 
 /**
  * [SINGLETON] Represent's the app instance, containing abstracted window,
  * graphics apis, etc...
  */
 class RApp {
-public:
+ public:
   // Get's the static app instance
-  static RApp &get() {
+  static RApp& get() {
     static RApp instance{};
     return instance;
   }
@@ -22,11 +24,11 @@ public:
   void run(RWindowApi win_api, RGraphicsApi gfx_api);
 
   // Get's the window handler
-  const RIWindow &get_window() const { return *window_; }
+  const RIWindow& get_window() const { return *window_; }
   // Get's the graphics api handler
-  const RIGraphicsApi &get_graphics() const { return *graphics_; }
+  const RIGraphicsApi& get_graphics() const { return *graphics_; }
 
-private:
+ private:
   std::shared_ptr<RIWindow> window_;
   std::shared_ptr<RIGraphicsApi> graphics_;
 };

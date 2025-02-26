@@ -11,7 +11,7 @@
 
 // Represent's a pointer to the native window handle (ex. HWND*) if dereferenced
 // get's the native handle
-typedef void *RWindowNativeHandle;
+typedef void* RWindowNativeHandle;
 
 // All the available platforms window apis
 enum RWindowApi {
@@ -32,7 +32,7 @@ struct RMonitor {
 
 // Represent's an abstracted window
 class RIWindow {
-public:
+ public:
   // Init the window
   virtual bool init() { return false; }
   // Process window messages
@@ -45,8 +45,8 @@ public:
   virtual void fetch_monitors() {}
 
   // Get's the monitors
-  const std::vector<RMonitor> &get_monitors() const { return monitors_; }
+  const std::vector<RMonitor>& get_monitors() const { return monitors_; }
 
-protected:
+ protected:
   std::vector<RMonitor> monitors_;
 };

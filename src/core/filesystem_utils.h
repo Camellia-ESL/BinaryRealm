@@ -4,15 +4,25 @@
 #include <fstream>
 #include <iostream>
 
+#include "containers.h"
+
 // A set of utilities to interact with file system
 class RFilesystemUtils {
-public:
+ public:
   // Get the config directory path
   static std::filesystem::path get_config_path();
   // Ensure that a directory exist and creates it if not, return true if it
   // exist or was created
-  static bool ensure_dir_exist(const std::string &path);
+  static bool ensure_dir_exist(const std::filesystem::path& path);
   // Save a file with the given content, it also ensure that the directory that
   // should contain the file exist
-  static bool save_file(const std::string &path, const std::string &content);
+  static bool save_file(const std::filesystem::path& path,
+                        const std::string& content);
+  // Loads a file and return's the ifstream, it also ensure that the directory
+  // that should contain the file exist
+  static RResult<std::ifstream> load_file(const std::filesystem::path& path);
+  // Get's all the files in a directory, it also ensure that the directory
+  // exist.
+  static RResult<std::vector<std::filesystem::path>> get_files_in_dir(
+      const std::filesystem::path& path);
 };
