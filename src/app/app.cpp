@@ -1,7 +1,6 @@
 #include "app.h"
 
 #include "../config/config_manager.h"
-#include "../config/settings_view.h"
 #include "../desktop/background.h"
 #include "../graphics/backends/d3d11_api.h"
 #include "../view/viewpool.h"
@@ -18,7 +17,6 @@ void RApp::run(RWindowApi win_api, RGraphicsApi gfx_api) {
 
   // Load the configs
   RConfigsManager::get().load_all();
-  RViewPool::get().spawn<RSettingsView>();
 
   while (window_->is_running()) {
     window_->process_messages();
