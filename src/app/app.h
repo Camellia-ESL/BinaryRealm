@@ -5,7 +5,6 @@
 #include "../graphics/graphics.h"
 #include "window.h"
 
-
 /**
  * [SINGLETON] Represent's the app instance, containing abstracted window,
  * graphics apis, etc...
@@ -24,9 +23,9 @@ class RApp {
   void run(RWindowApi win_api, RGraphicsApi gfx_api);
 
   // Get's the window handler
-  const RIWindow& get_window() const { return *window_; }
+  RIWindow& get_window() { return *window_; }
   // Get's the graphics api handler
-  const RIGraphicsApi& get_graphics() const { return *graphics_; }
+  RIGraphicsApi& get_graphics() { return *graphics_; }
 
  private:
   std::shared_ptr<RIWindow> window_;

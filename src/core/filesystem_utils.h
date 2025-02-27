@@ -21,6 +21,10 @@ class RFilesystemUtils {
   // Loads a file and return's the ifstream, it also ensure that the directory
   // that should contain the file exist
   static RResult<std::ifstream> load_file(const std::filesystem::path& path);
+  // Copies a file from a dir to another, it also make sure that the dst
+  // directory exist
+  static bool copy_file(const std::filesystem::path& src_path,
+                        const std::filesystem::path& dst_path);
   // Get's all the files in a directory, it also ensure that the directory
   // exist.
   static RResult<std::vector<std::filesystem::path>> get_files_in_dir(

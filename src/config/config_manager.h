@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include "theme.h"
+#include "../customization/background.h"
+#include "../customization/theme.h"
 
 // [SINGLETON] Handles all the configs of the application stored in the
 // configuration folder
@@ -29,6 +30,13 @@ class RConfigsManager {
   // Save all the configs in the configuration folder
   void save_all();
 
+  // Get's the manager responsible for themes
+  RThemeManager& get_theme_mngr() { return theme_mngr_; }
+
+  // Get's the manager responsible for desktop background
+  RDesktopBackgroundManager& get_desktop_bg_mngr() { return desktop_bg_mngr_; }
+
  private:
   RThemeManager theme_mngr_;
+  RDesktopBackgroundManager desktop_bg_mngr_;
 };

@@ -1,7 +1,7 @@
 #include "app.h"
 
 #include "../config/config_manager.h"
-#include "../desktop/background.h"
+#include "../customization/background.h"
 #include "../graphics/backends/d3d11_api.h"
 #include "../view/viewpool.h"
 #include "window_apis/win32_api.h"
@@ -22,7 +22,7 @@ void RApp::run(RWindowApi win_api, RGraphicsApi gfx_api) {
     window_->process_messages();
     graphics_->begin_render();
 
-    RDesktopBackgroundManager::get().render();
+    RConfigsManager::get().get_desktop_bg_mngr().render();
 
     RViewPool::get().render();
 

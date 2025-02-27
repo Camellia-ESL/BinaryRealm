@@ -11,6 +11,7 @@ const r_string RConfigsManager::get_config_dir_path() {
 void RConfigsManager::load_all() {
   // Load themes
   theme_mngr_.load();
+  desktop_bg_mngr_.load();
 }
 
 void RConfigsManager::save_all() {

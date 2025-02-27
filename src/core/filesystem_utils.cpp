@@ -60,6 +60,18 @@ RResult<std::ifstream> RFilesystemUtils::load_file(
       RError{"Error loading the file, something went wrong!"});
 }
 
+bool RFilesystemUtils::copy_file(const std::filesystem::path& src_path,
+                                 const std::filesystem::path& dst_path) {
+  try {
+    ensure_dir_exist(dst_path);
+    std::filesystem::copy(src_path, dst_path,
+                          std::filesystem::copy_options::overwrite_existing);
+    return true;
+  } catch (const std::filesystem::filesystem_error& e) {
+    return false;
+  }
+}
+
 RResult<std::vector<std::filesystem::path>> RFilesystemUtils::get_files_in_dir(
     const std::filesystem::path& path) {
   ensure_dir_exist(path);
