@@ -1,6 +1,7 @@
 #include "theme.h"
 
 #include <fstream>
+#include <future>
 #include <memory>
 
 #include "../../external/nhlomannjson/json.hpp"
@@ -101,12 +102,15 @@ void from_json(const json& j, ImGuiStyle& style) {
 
 // Serialize RTheme
 void to_json(json& j, const RTheme& theme) {
-  j = json{{"name", theme.name}, {"imgui_style", theme.imgui_style}};
+  j = json{{"name", theme.name},
+           {"imgui_style", theme.imgui_style},
+           {"is_default", theme.is_default}};
 }
 
 void from_json(const json& j, RTheme& theme) {
   theme.name = j.value("name", "");
   theme.imgui_style = j.value("imgui_style", ImGui::GetStyle());
+  theme.is_default = j.value("is_default", false);
 }
 
 bool RThemeManager::save() {
@@ -131,31 +135,60 @@ bool RThemeManager::load() {
   if (dir_read_res.val().empty()) {
     auto theme_create_res = create_theme("Default");
     if (!theme_create_res.ok()) return false;
+    std::shared_ptr<RTheme> p_theme = theme_create_res.val();
 
-    load_default_theme(*theme_create_res.val());
+    load_default_theme(*p_theme);
+    set_active_theme(p_theme);
     save();
+    return true;
   }
+
+  // Clear the themes vector before loading
+  themes_.clear();
+
+  // Loads themes from the config dir asynchronously
+  std::vector<std::future<std::shared_ptr<RTheme>>> futures;
 
   for (const auto& file_path : dir_read_res.val()) {
-    auto file_read_res = RFilesystemUtils::load_file(file_path);
-    if (!file_read_res.ok()) return false;
-    std::ifstream& file = file_read_res.val();
+    futures.emplace_back(std::async(
+        std::launch::async, [file_path]() -> std::shared_ptr<RTheme> {
+          auto file_read_res = RFilesystemUtils::load_file(file_path);
+          if (!file_read_res.ok()) return nullptr;
+          std::ifstream& file = file_read_res.val();
 
-    json j_theme;
-    file >> j_theme;
-    std::shared_ptr<RTheme> p_theme = std::make_shared<RTheme>();
-    *p_theme = j_theme.get<RTheme>();
-    themes_.emplace_back(p_theme);
-    file.close();
+          json j_theme;
+          file >> j_theme;
+          file.close();
+
+          auto p_theme = std::make_shared<RTheme>(j_theme.get<RTheme>());
+          return p_theme;
+        }));
   }
+
+  // Collect results
+  for (auto& fut : futures) {
+    auto p_theme = fut.get();
+    if (!p_theme) continue;
+    themes_.emplace_back(p_theme);
+    if (p_theme->is_default) set_active_theme(p_theme);
+  }
+
   return true;
+}
+
+void RThemeManager::set_active_theme(std::shared_ptr<RTheme> theme) {
+  if (!theme) return;
+
+  selected_theme_ = theme;
+  selected_theme_->is_default = true;
+  ImGui::GetStyle() = selected_theme_->imgui_style;
 }
 
 void RThemeManager::load_default_theme(RTheme& theme) {
   ImVec4* colors = theme.imgui_style.Colors;
   colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
   colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-  colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.30f);
+  colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
   colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
   colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
   colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
@@ -232,5 +265,4 @@ void RThemeManager::load_default_theme(RTheme& theme) {
   style.GrabRounding = 3;
   style.LogSliderDeadzone = 4;
   style.TabRounding = 4;
-  ImGui::GetStyle() = theme.imgui_style;
 }

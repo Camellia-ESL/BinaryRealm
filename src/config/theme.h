@@ -13,6 +13,8 @@ struct RTheme {
   r_string name;
   // The color style of imgui
   ImGuiStyle imgui_style;
+  // Whether if the theme is set to be the default one
+  bool is_default = false;
 };
 
 // Handle's application themes
@@ -32,6 +34,10 @@ class RThemeManager {
   // Loads the themes from the theme configs
   // NOTE: This can only be called between an initialized ImGui instance
   bool load();
+
+  // Set the active theme
+  // NOTE: This can only be called between an initialized ImGui instance
+  void set_active_theme(std::shared_ptr<RTheme> theme);
 
   // Load the default theme in a theme
   // NOTE: This can only be called between an initialized ImGui instance

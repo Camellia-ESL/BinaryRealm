@@ -53,7 +53,7 @@ bool RD3D11Api::init(void* p_native_handle) {
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+  // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
   io.ConfigViewportsNoDefaultParent = false;
 
   ImGui::StyleColorsDark();
@@ -105,12 +105,12 @@ void RD3D11Api::begin_render() {
 
 void RD3D11Api::render() {
   ImGui::Render();
-  p_d3d_device_context_->OMSetBlendState(p_blend_state_, nullptr, 0xFFFFFFFF);
   float clear_color[4] = {0, 0, 0, 0};
   p_d3d_device_context_->OMSetRenderTargets(1, &p_main_render_target_view_,
                                             nullptr);
   p_d3d_device_context_->ClearRenderTargetView(p_main_render_target_view_,
                                                clear_color);
+  p_d3d_device_context_->OMSetBlendState(p_blend_state_, nullptr, 0xFFFFFFFF);
   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
   if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
     ImGui::UpdatePlatformWindows();

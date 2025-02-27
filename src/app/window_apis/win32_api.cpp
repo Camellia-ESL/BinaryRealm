@@ -40,7 +40,7 @@ bool RWin32Api::init() {
       WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN),
       GetSystemMetrics(SM_CYSCREEN), nullptr, nullptr, wc.hInstance, nullptr);
 
-  SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+  SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
   SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
