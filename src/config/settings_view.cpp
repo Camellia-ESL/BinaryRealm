@@ -4,8 +4,9 @@
 #include "../view/viewpool.h"
 
 void RSettingsView::render() {
-  ImGui::Begin(r_str_to_cstr(get_name() + "##HERE NEEDS TO BE PUT A UUID"),
-               &open_);
+  ImGui::Begin(
+      r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)),
+      &open_);
 
   ImGui::End();
 
