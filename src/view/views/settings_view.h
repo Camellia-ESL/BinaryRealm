@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../view/view.h"
+#include "../view.h"
 
 // App settings view
 class RSettingsView : public RView {

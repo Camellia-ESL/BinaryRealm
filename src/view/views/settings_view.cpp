@@ -1,7 +1,7 @@
 #include "settings_view.h"
 
-#include "../../external/imgui/imgui.h"
-#include "../view/viewpool.h"
+#include "../../../external/imgui/imgui.h"
+#include "../viewpool.h"
 
 void RSettingsView::render() {
   ImGui::Begin(

@@ -9,7 +9,6 @@
 #include "../core/filesystem_utils.h"
 #include "../core/string.h"
 
-
 using json = nlohmann::json;
 
 const r_string RThemeManager::get_theme_dir_path() {

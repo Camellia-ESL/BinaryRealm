@@ -3,6 +3,7 @@
 #include <winuser.h>
 
 #include <algorithm>
+#include <iostream>
 
 #include "../../../external/imgui/imgui.h"
 
@@ -16,36 +17,35 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd,
 RWin32Api::RWin32Api() {}
 
 RWin32Api::~RWin32Api() {
-  ::DestroyWindow(hwnd);
-  ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+  ::DestroyWindow(hwnd_);
+  ::UnregisterClassW(wc_.lpszClassName, wc_.hInstance);
 }
 
 bool RWin32Api::init() {
-  wc = {sizeof(wc),
-        CS_CLASSDC,
-        WndProc,
-        0L,
-        0L,
-        GetModuleHandle(nullptr),
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        L"BinaryRealm",
-        nullptr};
-  ::RegisterClassExW(&wc);
+  wc_ = {sizeof(wc_),
+         CS_CLASSDC,
+         WndProc,
+         0L,
+         0L,
+         GetModuleHandle(nullptr),
+         nullptr,
+         nullptr,
+         nullptr,
+         nullptr,
+         L"BinaryRealm",
+         nullptr};
+  ::RegisterClassExW(&wc_);
+  // TODO: Add support for the creation of multiple windows
+  hwnd_ = ::CreateWindowExW(WS_EX_LAYERED, wc_.lpszClassName, L"BinaryRealm",
+                            WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN),
+                            GetSystemMetrics(SM_CYSCREEN), nullptr, nullptr,
+                            wc_.hInstance, nullptr);
 
-  hwnd = ::CreateWindowExW(
-      WS_EX_LAYERED | WS_EX_NOACTIVATE, wc.lpszClassName, L"BinaryRealm",
-      WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN),
-      GetSystemMetrics(SM_CYSCREEN), nullptr, nullptr, wc.hInstance, nullptr);
+  SetLayeredWindowAttributes(hwnd_, 0, 255, LWA_ALPHA);
+  SetWindowPos(hwnd_, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-  SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-  SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
-               SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-
-  ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-  ::UpdateWindow(hwnd);
+  ::ShowWindow(hwnd_, SW_SHOWDEFAULT);
+  ::UpdateWindow(hwnd_);
 
   fetch_monitors();
 
@@ -57,7 +57,7 @@ void RWin32Api::process_messages() {
   while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
-    if (msg.message == WM_QUIT) done = true;
+    if (msg.message == WM_QUIT) done_ = true;
   }
 }
 
@@ -93,8 +93,7 @@ LRESULT WINAPI WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
   }
 
   if (msg == WM_CREATE || msg == WM_ACTIVATE) {
-    SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
 
   return ::DefWindowProcW(hwnd, msg, wparam, lparam);

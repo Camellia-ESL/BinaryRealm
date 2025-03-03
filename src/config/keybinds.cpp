@@ -3,19 +3,24 @@
 #include <Windows.h>
 #include <winuser.h>
 
+#include <vector>
+
 #include "../../external/imgui/imgui.h"
 #include "../view/viewpool.h"
-#include "settings_view.h"
+#include "../view/views/console_view.h"
+#include "../view/views/settings_view.h"
 
 // Win32 key watcher used to check if a key is pressed
 class KeyWatcherWin32 {
  public:
   KeyWatcherWin32(int key) : key_(key), active_(false) {}
 
-  bool is_pressed(int mod_key = 0) {
-    const bool is_mod_key_down =
-        mod_key != 0 ? GetAsyncKeyState(mod_key) : true;
-    if (GetAsyncKeyState(key_) && is_mod_key_down) {
+  bool is_pressed(std::vector<int> mod_keys = {}) {
+    for (auto mod_key : mod_keys) {
+      if (!GetAsyncKeyState(mod_key)) return false;
+    }
+
+    if (GetAsyncKeyState(key_)) {
       if (!active_) {
         active_ = true;
         return true;
@@ -35,11 +40,6 @@ class KeyWatcherWin32 {
   bool active_;
 };
 
-static void r_on_settings_win_opener_pressed() {
-  // Spawn's a new setting window
-  RViewPool::get().spawn<RSettingsView>();
-}
-
 void r_process_keybinds_win32() {
   ImGuiIO& io = ImGui::GetIO();
 
@@ -47,5 +47,6 @@ void r_process_keybinds_win32() {
   static KeyWatcherWin32 tab_key{VK_TAB};
   static KeyWatcherWin32 shift_key{VK_SHIFT};
 
-  if (tab_key.is_pressed(VK_SHIFT)) r_on_settings_win_opener_pressed();
+  // Open console window when shift + tab is pressed
+  if (tab_key.is_pressed({VK_SHIFT})) RViewPool::get().spawn<RConsoleView>();
 }

@@ -4,7 +4,6 @@
 
 #include "../window.h"
 
-
 // Win32 native window handler abstraction
 class RWin32Api : public RIWindow {
  public:
@@ -17,15 +16,15 @@ class RWin32Api : public RIWindow {
   void process_messages() override;
   // Get's the native window handler (HWND*)
   RWindowNativeHandle get_native_handle() const override {
-    return (void*)&hwnd;
+    return (void*)&hwnd_;
   }
   // Whether if the window is running or not
-  bool is_running() const override { return !done; }
+  bool is_running() const override { return !done_; }
   // Fetch monitor infos using EnumDisplayMonitors api
   void fetch_monitors() override;
 
  private:
-  HWND hwnd;
-  bool done = false;
-  WNDCLASSEXW wc;
+  HWND hwnd_;
+  bool done_ = false;
+  WNDCLASSEXW wc_;
 };

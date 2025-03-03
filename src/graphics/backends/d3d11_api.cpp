@@ -6,6 +6,11 @@
 #include "../../../external/stb/stb_image.h"
 
 bool RD3D11Api::init(void* p_native_handle) {
+  // TODO: Add support for the creation of multiple renderers for every window
+  // (when the support for multiple windows is added) + adapt render to handle
+  // the rendering for every window. At that point nesting rendering api inside
+  // the window abstraction would make more sense.
+
   HWND hwnd = *((HWND*)p_native_handle);
 
   DXGI_SWAP_CHAIN_DESC sd = {};
@@ -48,13 +53,17 @@ bool RD3D11Api::init(void* p_native_handle) {
   HRESULT hr = p_d3d_device_->CreateBlendState(&desc, &p_blend_state_);
   if (FAILED(hr)) return false;
 
-  // Setup ImGui
+  // TODO: This imgui initialization except for the d3d11 specific one should be
+  // moved in an abstracted function to init imgui and default style Setup ImGui
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-  // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-  io.ConfigViewportsNoDefaultParent = false;
+
+  // TODO: Implement transparency and rounding for viewport windows
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+  io.ConfigViewportsNoDefaultParent = true;
+  io.ConfigViewportsNoAutoMerge = true;
 
   ImGui::StyleColorsDark();
   ImGui_ImplWin32_Init(hwnd);
