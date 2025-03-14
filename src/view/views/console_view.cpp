@@ -2,24 +2,61 @@
 #include "console_view.h"
 
 #include <filesystem>
+#include <memory>
+#include <regex>
 #include <sstream>
 
 #include "../../../external/imgui/imgui.h"
+#include "../../config/config_manager.h"
 #include "../viewpool.h"
 
-/**
+/*
+ * Contains all the info about a single console executable command.
+ */
+struct RConsoleCommand {
+  /* The description of the command */
+  r_string description;
+  /* The usage of the command */
+  r_string usage;
+  /* The function to execute the command */
+  std::function<void(const r_string&, RConsoleView&, RConsoleCommand&)>
+      executor;
+};
+
+/*
  * Private Global variable that contains all the custom commands that can be
  * executed by the console.
  */
-std::unordered_map<r_string, std::function<void(const r_string&)>> g_commands_;
+std::unique_ptr<std::unordered_map<r_string, RConsoleCommand>> r_g_commands_;
 
-// Register a new custom command in the commands map
-static void g_register_command_(const r_string& name,
-                                std::function<void(const r_string&)> func) {
-  g_commands_[name] = func;
+/*
+ * Register a new command.
+ */
+inline constexpr void r_register_command(const r_string& name,
+                                         const RConsoleCommand& cmd_info) {
+  (*r_g_commands_)[name] = cmd_info;
+}
+
+/*
+ * Return's all the flags inside a command string
+ */
+static std::vector<r_string> r_extract_cmd_flags(const r_string& args) {
+  std::vector<r_string> arguments;
+  std::regex arg_pattern(R"(-\w+)");
+  std::sregex_iterator it(args.begin(), args.end(), arg_pattern);
+  std::sregex_iterator end;
+
+  while (it != end) {
+    arguments.push_back(it->str());
+    ++it;
+  }
+
+  return arguments;
 }
 
 void RConsoleView::render() {
+  static bool is_first_render = true;
+  ImGui::SetNextWindowSize({400.0f, 250.0f}, ImGuiCond_FirstUseEver);
   ImGui::Begin(
       r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)), &open_,
       ImGuiWindowFlags_NoScrollbar);
@@ -40,7 +77,7 @@ void RConsoleView::render() {
                        IM_ARRAYSIZE(cmd_input_buffer_),
                        ImGuiInputTextFlags_EnterReturnsTrue)) {
     r_string command(cmd_input_buffer_);
-    add_cmd_to_history_("> " + command);
+    add_exec_res_to_history_("> " + command);
     process_command_async_(command);
     memset(cmd_input_buffer_, 0, sizeof(cmd_input_buffer_));
     ImGui::SetKeyboardFocusHere(-1);
@@ -57,12 +94,13 @@ void RConsoleView::process_command_async_(const r_string& command) {
   r_string cmd;
   iss >> cmd;
 
-  auto cmd_ith = g_commands_.find(cmd);
+  auto cmd_ith = r_g_commands_->find(cmd);
   // Launch a thread for command execution
   std::jthread worker([this, cmd_ith, command]() -> void {
     // Check if it is a custom command or a system command and execute's it
-    cmd_ith != g_commands_.end() ? cmd_ith->second(command)
-                                 : exec_sys_cmd(command);
+    cmd_ith != r_g_commands_->end()
+        ? cmd_ith->second.executor(command, *this, cmd_ith->second)
+        : exec_sys_cmd(command);
   });
   worker.detach();
 }
@@ -75,9 +113,9 @@ void RConsoleView::exec_sys_cmd(const r_string& command) {
     if (std::filesystem::exists(new_path) &&
         std::filesystem::is_directory(new_path)) {
       std::filesystem::current_path(new_path);
-      add_cmd_to_history_("Changed directory to: " + new_path);
+      add_exec_res_to_history_("Changed directory to: " + new_path);
     } else {
-      add_cmd_to_history_("Error: Invalid directory!");
+      add_exec_res_to_history_("Error: Invalid directory!");
     }
     return;
   }
@@ -87,8 +125,6 @@ void RConsoleView::exec_sys_cmd(const r_string& command) {
     cmds_history_.clear();
     return;
   }
-
-  // TODO: Add "help" cmd
 
   r_string full_cmd = command + " 2>&1";
 
@@ -100,7 +136,7 @@ void RConsoleView::exec_sys_cmd(const r_string& command) {
 
   FILE* pipe = _popen(full_cmd.c_str(), "r");
   if (!pipe) {
-    add_cmd_to_history_("Error executing command.");
+    add_exec_res_to_history_("Error executing command.");
     return;
   }
 
@@ -111,10 +147,65 @@ void RConsoleView::exec_sys_cmd(const r_string& command) {
   }
   _pclose(pipe);
 
-  add_cmd_to_history_(result);
+  add_exec_res_to_history_(result);
 }
 
-void RConsoleView::add_cmd_to_history_(const r_string& command) {
+void RConsoleView::add_exec_res_to_history_(const r_string& command) {
   std::lock_guard<std::mutex> lock(cmds_history_mtx_);
   cmds_history_.emplace_back(command);
+}
+
+static void rlmshow_executor(const r_string& cmd_string, RConsoleView& console,
+                             RConsoleCommand& command) {
+  auto flags = r_extract_cmd_flags(cmd_string);
+
+  // If flags are empty show's the usage
+  if (flags.empty()) {
+    console.add_exec_res_to_history_(command.description + "\n" +
+                                     command.usage);
+    return;
+  }
+
+  r_string exec_res_str = "";
+
+  for (r_string& flag : flags) {
+    // Shows all the available themes
+    if (flag == "-themes") {
+      auto& themes = RConfigsManager::get().get_theme_mngr().get_themes();
+      for (auto& theme : themes) {
+        exec_res_str += "--> " + theme->name + "\n";
+      }
+      continue;
+    }
+
+    // Nothing was found shows an error
+    exec_res_str += "flag: " + flag + "was not found!";
+  }
+
+  // Print's the result to screen
+  console.add_exec_res_to_history_(exec_res_str);
+}
+
+void r_register_console_cmds() {
+  if (!r_g_commands_) {
+    r_g_commands_ =
+        std::make_unique<std::unordered_map<r_string, RConsoleCommand>>();
+  }
+
+  r_g_commands_->clear();
+
+  // TODO: Add "help" cmd
+
+  RConsoleCommand rlmshow_info{};
+  rlmshow_info.executor = rlmshow_executor;
+  rlmshow_info.description = "Shows informations about Binary Realm";
+  rlmshow_info.usage = R"(
+    rlmshow [flags]
+    
+    [flags] --> an array of flags.
+
+    <available flags>:
+    -themes --> shows all the available themes.
+  )";
+  r_register_command("rlmshow", rlmshow_info);
 }

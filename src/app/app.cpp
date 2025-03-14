@@ -5,6 +5,7 @@
 #include "../customization/background.h"
 #include "../graphics/backends/d3d11_api.h"
 #include "../view/viewpool.h"
+#include "../view/views/console_view.h"
 #include "window_apis/win32_api.h"
 
 void RApp::run(RWindowApi win_api, RGraphicsApi gfx_api) {
@@ -18,6 +19,9 @@ void RApp::run(RWindowApi win_api, RGraphicsApi gfx_api) {
 
   // Load the configs
   RConfigsManager::get().load_all();
+
+  // Register the custom console commands
+  r_register_console_cmds();
 
   while (window_->is_running()) {
     window_->process_messages();

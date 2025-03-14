@@ -7,41 +7,75 @@
 #include "../core/containers.h"
 #include "../core/string.h"
 
-// Represent's an application theme
+/*
+ * Represent's an application theme
+ */
 struct RTheme {
-  // The name of the theme
+  /*
+   * The name of the theme
+   */
   r_string name;
-  // The color style of imgui
+  /*
+   * The color style of imgui
+   */
   ImGuiStyle imgui_style;
-  // Whether if the theme is set to be the default one
+  /*
+   * Whether if the theme is set to be the default one
+   */
   bool is_default = false;
 };
 
-// Handle's application themes
+/*
+ * Handle's application themes
+ */
 class RThemeManager {
  public:
-  // Get's the themes dir path
+  /*
+   * Get's the themes dir path
+   */
   static const r_string get_theme_dir_path();
 
-  // Create's a new theme, save's it in a file and returns it in a result
-  // NOTE: This can only be called between an initialized ImGui instance
+  /*
+   * Create's a new theme, save's it in a file and returns it in a result
+   *  NOTE: This can only be called between an initialized ImGui instance
+   */
   RResult<std::shared_ptr<RTheme>> create_theme(const std::string& name);
 
-  // Saves the current state of the theme manager in the theme configs
-  // NOTE: This can only be called between an initialized ImGui instance
+  /*
+   * Saves the current state of the theme manager in the theme configs
+   *  NOTE: This can only be called between an initialized ImGui instance
+   */
   bool save();
 
-  // Loads the themes from the theme configs
-  // NOTE: This can only be called between an initialized ImGui instance
+  /*
+   * Loads the themes from the theme configs
+   *  NOTE: This can only be called between an initialized ImGui instance
+   */
   bool load();
 
-  // Set the active theme
-  // NOTE: This can only be called between an initialized ImGui instance
+  /*
+   * Set the active theme
+   *  NOTE: This can only be called between an initialized ImGui instance
+   */
   void set_active_theme(std::shared_ptr<RTheme> theme);
 
-  // Load the default theme in a theme
-  // NOTE: This can only be called between an initialized ImGui instance
+  /*
+   * Load the default theme in a theme
+   *  NOTE: This can only be called between an initialized ImGui instance
+   */
   void load_default_theme(RTheme& theme);
+
+  /*
+   * Get's the current active theme or nullptr if there isn't one
+   */
+  std::shared_ptr<RTheme> get_active_theme() const { return selected_theme_; }
+
+  /*
+   * Get's the current available themes
+   */
+  const std::vector<std::shared_ptr<RTheme>>& get_themes() const {
+    return themes_;
+  }
 
  private:
   std::shared_ptr<RTheme> selected_theme_;
