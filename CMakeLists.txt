@@ -15,10 +15,10 @@ add_library(imgui STATIC
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp
     external/imgui/imgui_widgets.cpp
-    external/imgui/backends/imgui_impl_win32.cpp
-    external/imgui/backends/imgui_impl_dx11.cpp
+    external/imgui/imgui_impl_win32.cpp
+    external/imgui/imgui_impl_dx11.cpp
 )
-target_include_directories(imgui PRIVATE external/imgui external/imgui/backends)
+target_include_directories(imgui PRIVATE external/imgui)
 target_link_libraries(imgui PRIVATE d3d11 dxgi d3dcompiler)
 
 # Main executable
