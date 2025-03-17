@@ -29,7 +29,7 @@ class RConsoleView : public RView {
   constexpr const char* get_name() const override { return "Console View"; };
 
   /*
-   * Safely add's an element to the cmds_history_ [THREAD SAFE]
+   * [THREADSAFE] Safely add's an element to the cmds_history_
    */
   void add_exec_res_to_history_(const r_string& command);
 
@@ -43,7 +43,7 @@ class RConsoleView : public RView {
   std::mutex cmds_history_mtx_;
 
   /*
-   * Process a command asynchronously and thread safe [THREAD SAFE]
+   * [THREADSAFE] Process a command asynchronously and thread safe
    */
   void process_command_async_(const r_string& command);
   /*

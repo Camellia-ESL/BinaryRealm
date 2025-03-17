@@ -47,7 +47,7 @@ static std::vector<r_string> r_extract_cmd_flags(const r_string& args) {
   std::sregex_iterator end;
 
   while (it != end) {
-    arguments.push_back(it->str());
+    arguments.emplace_back(it->str());
     ++it;
   }
 

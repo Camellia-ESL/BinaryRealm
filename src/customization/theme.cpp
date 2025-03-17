@@ -74,7 +74,7 @@ void to_json(json& j, const ImGuiStyle& style) {
       {"ScrollbarRounding", style.ScrollbarRounding},
   };
   for (int i = 0; i < ImGuiCol_COUNT; ++i) {
-    j["Colors"].push_back(style.Colors[i]);
+    j["Colors"].emplace_back(style.Colors[i]);
   }
 }
 

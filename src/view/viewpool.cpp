@@ -1,7 +1,5 @@
 #include "viewpool.h"
 
-#include <memory>
-
 void RViewPool::render() {
   // The views_ vector is looped in this way to avoid crashes caused by erasing
   // elements from the vector that can cause problems to iterators while

@@ -80,7 +80,7 @@ RResult<std::vector<std::filesystem::path>> RFilesystemUtils::get_files_in_dir(
   if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
       if (std::filesystem::is_regular_file(entry.status())) {
-        file_paths.push_back(entry.path());
+        file_paths.emplace_back(entry.path());
       }
     }
   } else {

@@ -68,7 +68,7 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor,
   RMonitorRect rect{*(RMonitorRect*)lprcMonitor};
   RMonitor monitor{rect};
 
-  monitors->push_back(monitor);
+  monitors->emplace_back(monitor);
   return TRUE;
 }
 
