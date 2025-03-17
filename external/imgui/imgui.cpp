@@ -7152,13 +7152,32 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
             if (override_alpha)
                 bg_col = (bg_col & ~IM_COL32_A_MASK) | (IM_F32_TO_INT8_SAT(alpha) << IM_COL32_A_SHIFT);
 
+            ImDrawFlags window_rounding_flags = ImDrawFlags_None;
+            if (window->DockIsActive)
+            {
+                ImGuiWindow* dock_root_window = window->RootWindowDockTree;
+                if (window->Pos.y + window->Size.y == dock_root_window->Pos.y + dock_root_window->Size.y)
+                {
+                    if (window->Pos.x == dock_root_window->Pos.x)
+                        window_rounding_flags |= ImDrawFlags_RoundCornersBottomLeft;
+
+                    if (window->Pos.x + window->Size.x == dock_root_window->Pos.x + dock_root_window->Size.x)
+                        window_rounding_flags |= ImDrawFlags_RoundCornersBottomRight;
+                }
+
+                if (!window_rounding_flags)
+                    window_rounding_flags = ImDrawFlags_RoundCornersNone;
+            }
+            else if (!(flags & ImGuiWindowFlags_NoTitleBar))
+                window_rounding_flags = ImDrawFlags_RoundCornersBottom;
+
             // Render, for docked windows and host windows we ensure bg goes before decorations
             if (window->DockIsActive)
                 window->DockNode->LastBgColor = bg_col;
             ImDrawList* bg_draw_list = window->DockIsActive ? window->DockNode->HostWindow->DrawList : window->DrawList;
             if (window->DockIsActive || (flags & ImGuiWindowFlags_DockNodeHost))
                 bg_draw_list->ChannelsSetCurrent(DOCKING_HOST_DRAW_CHANNEL_BG);
-            bg_draw_list->AddRectFilled(window->Pos + ImVec2(0, window->TitleBarHeight), window->Pos + window->Size, bg_col, window_rounding, (flags & ImGuiWindowFlags_NoTitleBar) ? 0 : ImDrawFlags_RoundCornersBottom);
+            bg_draw_list->AddRectFilled(window->Pos + ImVec2(0, window->TitleBarHeight), window->Pos + window->Size, bg_col, window_rounding, window_rounding_flags);
             if (window->DockIsActive || (flags & ImGuiWindowFlags_DockNodeHost))
                 bg_draw_list->ChannelsSetCurrent(DOCKING_HOST_DRAW_CHANNEL_FG);
         }

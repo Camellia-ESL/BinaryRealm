@@ -3,7 +3,6 @@
 #include <winuser.h>
 
 #include <algorithm>
-#include <iostream>
 
 #include "../../../external/imgui/imgui.h"
 

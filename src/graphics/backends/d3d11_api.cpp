@@ -53,19 +53,8 @@ bool RD3D11Api::init(void* p_native_handle) {
   HRESULT hr = p_d3d_device_->CreateBlendState(&desc, &p_blend_state_);
   if (FAILED(hr)) return false;
 
-  // TODO: This imgui initialization except for the d3d11 specific one should be
-  // moved in an abstracted function to init imgui and default style Setup ImGui
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO();
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  init_imgui_();
 
-  // TODO: Implement transparency and rounding for viewport windows
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-  io.ConfigViewportsNoDefaultParent = true;
-  io.ConfigViewportsNoAutoMerge = true;
-
-  ImGui::StyleColorsDark();
   ImGui_ImplWin32_Init(hwnd);
   ImGui_ImplDX11_Init(p_d3d_device_, p_d3d_device_context_);
 
