@@ -73,6 +73,7 @@ void RConsoleView::render() {
   ImGui::EndChild();
 
   // Command input
+  ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
   if (ImGui::InputText("##input", cmd_input_buffer_,
                        IM_ARRAYSIZE(cmd_input_buffer_),
                        ImGuiInputTextFlags_EnterReturnsTrue)) {

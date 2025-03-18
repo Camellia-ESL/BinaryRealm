@@ -84,8 +84,6 @@ void RWin32Api::fetch_monitors() {
 }
 
 LRESULT WINAPI WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-  if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) return true;
-
   if (msg == WM_DESTROY) {
     ::PostQuitMessage(0);
     return 0;
@@ -95,5 +93,6 @@ LRESULT WINAPI WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
 
+  if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) return true;
   return ::DefWindowProcW(hwnd, msg, wparam, lparam);
 }
