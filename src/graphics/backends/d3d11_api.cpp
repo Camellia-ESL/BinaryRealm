@@ -5,18 +5,14 @@
 #include "../../../external/imgui/imgui_impl_win32.h"
 #include "../../../external/stb/stb_image.h"
 
-bool RD3D11Api::init(void* p_native_handle) {
-  // TODO: Add support for the creation of multiple renderers for every window
-  // (when the support for multiple windows is added) + adapt render to handle
-  // the rendering for every window. At that point nesting rendering api inside
-  // the window abstraction would make more sense.
-
+bool RD3D11Api::init(void* p_native_handle, int left, int top, int right,
+                     int bottom, bool enable_viewports) {
   HWND hwnd = *((HWND*)p_native_handle);
 
   DXGI_SWAP_CHAIN_DESC sd = {};
   sd.BufferCount = 2;
-  // sd.BufferDesc.Width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-  // sd.BufferDesc.Height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+  sd.BufferDesc.Width = right - left;
+  sd.BufferDesc.Height = bottom - top;
   sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
   sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   sd.OutputWindow = hwnd;
@@ -53,7 +49,7 @@ bool RD3D11Api::init(void* p_native_handle) {
   HRESULT hr = p_d3d_device_->CreateBlendState(&desc, &p_blend_state_);
   if (FAILED(hr)) return false;
 
-  init_imgui_();
+  init_imgui_(enable_viewports);
 
   ImGui_ImplWin32_Init(hwnd);
   ImGui_ImplDX11_Init(p_d3d_device_, p_d3d_device_context_);
@@ -96,6 +92,7 @@ void RD3D11Api::destroy() {
 }
 
 void RD3D11Api::begin_render() {
+  ImGui::SetCurrentContext(imgui_ctx_);
   ImGui_ImplDX11_NewFrame();
   ImGui_ImplWin32_NewFrame();
   ImGui::NewFrame();
@@ -103,7 +100,7 @@ void RD3D11Api::begin_render() {
 
 void RD3D11Api::render() {
   ImGui::Render();
-  float clear_color[4] = {0, 0, 0, 0};
+  constexpr const float clear_color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
   p_d3d_device_context_->OMSetRenderTargets(1, &p_main_render_target_view_,
                                             nullptr);
   p_d3d_device_context_->ClearRenderTargetView(p_main_render_target_view_,
@@ -118,7 +115,7 @@ void RD3D11Api::render() {
   p_swapchain_->Present(1, 0);
 }
 
-RResult<RImage> RD3D11Api::load_img_from_file(const r_string& path) {
+RResult<RpImageSRV> RD3D11Api::load_img_from_file(const r_string& path) {
   int width, height, channels;
 
   // Load the image from file
@@ -152,5 +149,5 @@ RResult<RImage> RD3D11Api::load_img_from_file(const r_string& path) {
   // Release the texture (it's no longer needed after creating the SRV)
   texture->Release();
 
-  return RResult<RImage>::create_ok((RImage)texture_srv);
+  return RResult<RpImageSRV>::create_ok((RpImageSRV)texture_srv);
 }

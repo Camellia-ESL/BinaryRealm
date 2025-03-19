@@ -1,3 +1,11 @@
+/*
+ *The main header containing themes logic
+ *
+ *  NOTE: Themes are loaded only for the first Screen instance as it is the
+ * host monitor used as platform for the viewports (basically every window
+ * rendered / imgui component except for few exceptions like the desktop
+ * background manager)
+ */
 #pragma once
 #include <memory>
 #include <vector>

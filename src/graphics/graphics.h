@@ -7,19 +7,14 @@
 
 #pragma once
 
-#include "../app/window.h"
+#include "../../external/imgui/imgui.h"
 #include "../core/containers.h"
-
-/*
- * The image resource view abstracted (ex. D3D11ShaderResourceView* for d3d11)
- * it can be passed to ImGui to render images
- */
-typedef void* RImage;
+#include "image.h"
 
 /*
  * All the available graphics apis
  */
-enum RGraphicsApi { D3D11 };
+enum RGraphicsApiType { D3D11 };
 
 /*
  * Represent's an abstracted graphics api backend
@@ -32,7 +27,8 @@ class RIGraphicsApi {
   /*
    * Init a new instance
    */
-  virtual bool init(RWindowNativeHandle p_native_handle) = 0;
+  virtual bool init(void* p_native_handle, int left, int top, int right,
+                    int bottom, bool enable_viewports) = 0;
 
   /*
    * Destroy the instance
@@ -53,12 +49,19 @@ class RIGraphicsApi {
    * Load's an image from file then returns the texture resource ptr (ex. d3d11)
    * returns D3D11ShaderResourceView*) ready to be passed to ImGui::Image()
    */
-  virtual RResult<RImage> load_img_from_file(const r_string& path) = 0;
+  virtual RResult<RpImageSRV> load_img_from_file(const r_string& path) = 0;
+
+  /*
+   * Get's the imgui context for this instance
+   */
+  ImGuiContext* get_imgui_ctx() { return imgui_ctx_; }
 
  protected:
+  ImGuiContext* imgui_ctx_;
+
   /*
    * Should be called once in every init() backend, init's all the needed imgui
    * contexts
    */
-  void init_imgui_();
+  void init_imgui_(bool enable_viewports);
 };

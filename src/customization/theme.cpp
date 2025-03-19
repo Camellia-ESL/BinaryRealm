@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "../../external/nhlomannjson/json.hpp"
+#include "../app/app.h"
 #include "../config/config_manager.h"
 #include "../core/filesystem_utils.h"
 #include "../core/string.h"
@@ -17,6 +18,8 @@ const r_string RThemeManager::get_theme_dir_path() {
 
 RResult<std::shared_ptr<RTheme>> RThemeManager::create_theme(
     const std::string& name) {
+  auto prev_ctx = ImGui::GetCurrentContext();
+  ImGui::SetCurrentContext(RApp::get().get_main_imgui_ctx());
   // Create's the theme
   std::shared_ptr<RTheme> new_thm = std::make_shared<RTheme>();
   new_thm->name = name;
@@ -29,6 +32,7 @@ RResult<std::shared_ptr<RTheme>> RThemeManager::create_theme(
         RError{"Could not save the themes in configs, something went wrong!"});
   }
 
+  ImGui::SetCurrentContext(prev_ctx);
   return RResult<std::shared_ptr<RTheme>>::create_ok(new_thm);
 }
 
@@ -127,6 +131,9 @@ bool RThemeManager::save() {
 }
 
 bool RThemeManager::load() {
+  auto prev_ctx = ImGui::GetCurrentContext();
+  ImGui::SetCurrentContext(RApp::get().get_main_imgui_ctx());
+
   auto dir_read_res = RFilesystemUtils::get_files_in_dir(get_theme_dir_path());
   if (!dir_read_res.ok()) return false;
 
@@ -173,15 +180,23 @@ bool RThemeManager::load() {
     if (p_theme->is_default) set_active_theme(p_theme);
   }
 
+  // Set back the previous context
+  ImGui::SetCurrentContext(prev_ctx);
+
   return true;
 }
 
 void RThemeManager::set_active_theme(std::shared_ptr<RTheme> theme) {
   if (!theme) return;
 
+  auto prev_ctx = ImGui::GetCurrentContext();
+  ImGui::SetCurrentContext(RApp::get().get_main_imgui_ctx());
+
   selected_theme_ = theme;
   selected_theme_->is_default = true;
   ImGui::GetStyle() = selected_theme_->imgui_style;
+
+  ImGui::SetCurrentContext(prev_ctx);
 }
 
 void RThemeManager::load_default_theme(RTheme& theme) {
