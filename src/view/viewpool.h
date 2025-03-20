@@ -25,7 +25,7 @@ class RViewPool {
    */
   template <typename T>
   void spawn(const r_string& tag = "") {
-    views_.emplace_back(std::make_unique<T>(tag));
+    views_.emplace_back(std::make_unique<T>(tag))->on_spawn();
   }
 
   /*

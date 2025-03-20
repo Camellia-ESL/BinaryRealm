@@ -8,6 +8,7 @@
 #include "../../external/imgui/imgui.h"
 #include "../view/viewpool.h"
 #include "../view/views/console_view.h"
+#include "../view/views/settings_view.h"
 
 // Win32 key watcher used to check if a key is pressed
 class KeyWatcherWin32 {
@@ -46,7 +47,10 @@ void r_process_keybinds_win32() {
   static KeyWatcherWin32 tab_key{VK_TAB};
   static KeyWatcherWin32 oem_5_key{VK_OEM_5};
 
-  // Open console window when shift + tab is pressed
+  // Open console window when shift + oem_5 is pressed
   if (oem_5_key.is_pressed({VK_CONTROL}))
     RViewPool::get().spawn<RConsoleView>();
+
+  // Open settings window when alt + oem_5 is pressed
+  if (oem_5_key.is_pressed({VK_RMENU})) RViewPool::get().spawn<RSettingsView>();
 }
