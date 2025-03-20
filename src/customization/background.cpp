@@ -17,9 +17,9 @@ void RDesktopBackgroundManager::render(RScreen& screen) {
   auto& io = ImGui::GetIO();
   ImDrawList* draw_list = ImGui::GetForegroundDrawList();
 
-  draw_list->AddImage(
-      (ImTextureID)cur_bg_->img->get_srvs().at(screen.get_monitor_index()),
-      {0.0f, 0.0f}, ImGui::GetIO().DisplaySize);
+  draw_list->AddImage((ImTextureID)cur_bg_->img->get_screen_srvs().at(
+                          screen.get_monitor_index()),
+                      {0.0f, 0.0f}, ImGui::GetIO().DisplaySize);
 }
 
 bool RDesktopBackgroundManager::load() {
@@ -71,7 +71,7 @@ RResult<RDesktopBackground> RDesktopBackgroundManager::load_new_bg_from_file(
   // Tries to copy the texture in the config dir
   if (!RFilesystemUtils::copy_file(path, get_bg_images_dir_path()))
     return RResult<RDesktopBackground>::create_err(
-        RError{"Error copying the background in the configs!"});
+        "Error copying the background in the configs!");
 
   loaded_bgs_.emplace_back(texture_load_res.val());
 

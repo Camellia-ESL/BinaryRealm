@@ -11,6 +11,16 @@
 #include "../viewpool.h"
 
 /*
+ * Register a new command.
+ */
+#define r_register_cmd(cmd_name, callback, description_str, usage_str) \
+  RConsoleCommand cmd_name##_info{};                                   \
+  cmd_name##_info.executor = callback;                                 \
+  cmd_name##_info.description = description_str;                       \
+  cmd_name##_info.usage = usage_str;                                   \
+  r_register_command(#cmd_name, cmd_name##_info);
+
+/*
  * Contains all the info about a single console executable command.
  */
 struct RConsoleCommand {
@@ -197,16 +207,13 @@ void r_register_console_cmds() {
 
   // TODO: Add "help" cmd
 
-  RConsoleCommand rlmshow_info{};
-  rlmshow_info.executor = rlmshow_executor;
-  rlmshow_info.description = "Shows informations about Binary Realm";
-  rlmshow_info.usage = R"(
+  r_register_cmd(rlmshow, rlmshow_executor,
+                 "Shows informations about Binary Realm", R"(
     rlmshow [flags]
     
     [flags] --> an array of flags.
 
     <available flags>:
     -themes --> shows all the available themes.
-  )";
-  r_register_command("rlmshow", rlmshow_info);
+  )");
 }

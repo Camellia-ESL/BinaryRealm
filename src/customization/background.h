@@ -13,28 +13,57 @@ struct RDesktopBackground {
   std::shared_ptr<RImage> img;
 };
 
-// Handles the interactions with the desktop background.
+/*
+ * Handles the interactions with the desktop background.
+ */
 class RDesktopBackgroundManager {
  public:
-  // Get's the config directory where are stored all the background images
+  /*
+   * Get's the config directory where are stored all the background images
+   */
   static const r_string get_bg_images_dir_path();
 
-  // Render's a desktop background
+  /*
+   * Render's a desktop background
+   */
   void render(RScreen& screen);
 
-  // Load's all the backgrounds
+  /*
+   * Load's all the backgrounds
+   */
   bool load();
 
-  // Set the current background
+  /*
+   * Set the current background
+   */
   void set_background(RDesktopBackground* bg) { cur_bg_ = bg; }
 
-  // Load a new background from file, it also makes a copy in the configs to
-  // save it
+  /*
+   * Load a new background from file, it also makes a copy in the configs to
+   * save it
+   */
   RResult<RDesktopBackground> load_new_bg_from_file(const r_string& path);
 
+  /*
+   * Return's the current active background or nullptr if none are active
+   */
+  const RDesktopBackground* get_current_bg() const { return cur_bg_; }
+
+  /*
+   * Return's the loaded backgrounds
+   */
+  const std::vector<RDesktopBackground>& get_loaded_bgs() const {
+    return loaded_bgs_;
+  }
+
  private:
-  // The current background set
+  /*
+   * The current background set
+   */
   RDesktopBackground* cur_bg_;
-  // All the loaded backgrounds
+
+  /*
+   * All the loaded backgrounds
+   */
   std::vector<RDesktopBackground> loaded_bgs_;
 };

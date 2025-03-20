@@ -140,14 +140,22 @@ RResult<RpImageSRV> RD3D11Api::load_img_from_file(const r_string& path) {
   init_data.SysMemSlicePitch = 0;
 
   ID3D11Texture2D* texture = nullptr;
-  p_d3d_device_->CreateTexture2D(&tex_desc, &init_data, &texture);
+  HRESULT hr = p_d3d_device_->CreateTexture2D(&tex_desc, &init_data, &texture);
+
+  stbi_image_free(data);
+  if (FAILED(hr))
+    return RResult<RpImageSRV>::create_err("Failed to create texture");
 
   // Create shader resource view
   ID3D11ShaderResourceView* texture_srv = nullptr;
-  p_d3d_device_->CreateShaderResourceView(texture, nullptr, &texture_srv);
+  hr = p_d3d_device_->CreateShaderResourceView(texture, nullptr, &texture_srv);
 
   // Release the texture (it's no longer needed after creating the SRV)
   texture->Release();
+
+  if (FAILED(hr))
+    return RResult<RpImageSRV>::create_err(
+        "Failed to create shader resource view");
 
   return RResult<RpImageSRV>::create_ok((RpImageSRV)texture_srv);
 }

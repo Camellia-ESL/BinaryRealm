@@ -26,9 +26,18 @@ class RImage {
   /*
    * Get's the image srvs contained by the instance
    */
-  const std::map<int, RpImageSRV>& get_srvs() const { return srvs_; }
+  const std::map<int, RpImageSRV>& get_screen_srvs() const {
+    return screen_srvs_;
+  }
+
+  /*
+   * Get's the host srv (it can be used within host windows, basically
+   * viewports)
+   */
+  const RpImageSRV get_host_srv() const { return host_srv_; }
 
  private:
+  RpImageSRV host_srv_;
   // screen_monitor_index - RpImageSRV keypair
-  std::map<int, RpImageSRV> srvs_;
+  std::map<int, RpImageSRV> screen_srvs_;
 };

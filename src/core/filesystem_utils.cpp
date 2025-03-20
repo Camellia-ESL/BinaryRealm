@@ -57,7 +57,7 @@ RResult<std::ifstream> RFilesystemUtils::load_file(
     return RResult<std::ifstream>::create_ok(std::move(file));
   }
   return RResult<std::ifstream>::create_err(
-      RError{"Error loading the file, something went wrong!"});
+      "Error loading the file, something went wrong!");
 }
 
 bool RFilesystemUtils::copy_file(const std::filesystem::path& src_path,
@@ -85,7 +85,7 @@ RResult<std::vector<std::filesystem::path>> RFilesystemUtils::get_files_in_dir(
     }
   } else {
     return RResult<std::vector<std::filesystem::path>>::create_err(
-        RError{"Error trying to read a dir that does not exist!"});
+        "Error trying to read a dir that does not exist!");
   }
 
   return RResult<std::vector<std::filesystem::path>>::create_ok(

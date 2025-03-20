@@ -37,13 +37,13 @@ class RApp {
   /*
    * Get's the host window used as a platform support for viewports
    */
-  RIWindow& get_host_gfx_handler() { return *host_window_; }
+  RIWindow& get_host_win() { return *host_window_; }
 
   /*
    * Get's the main imgui context
    */
   ImGuiContext* get_main_imgui_ctx() {
-    return get_host_gfx_handler().get_gfx().get_imgui_ctx();
+    return get_host_win().get_gfx().get_imgui_ctx();
   }
 
  private:

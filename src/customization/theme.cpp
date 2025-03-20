@@ -29,7 +29,7 @@ RResult<std::shared_ptr<RTheme>> RThemeManager::create_theme(
   // Tries to save the theme manager state in the config
   if (!save()) {
     return RResult<std::shared_ptr<RTheme>>::create_err(
-        RError{"Could not save the themes in configs, something went wrong!"});
+        "Could not save the themes in configs, something went wrong!");
   }
 
   ImGui::SetCurrentContext(prev_ctx);
