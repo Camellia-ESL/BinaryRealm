@@ -10,6 +10,7 @@ void render_background_settings() {
 
   const float img_button_size = 150.0f;
 
+  int imgs_in_line = 0;
   for (auto& bg : loaded_bgs) {
     if (ImGui::ImageButton(
             r_str_to_cstr("##" +
@@ -18,13 +19,23 @@ void render_background_settings() {
             {img_button_size, img_button_size})) {
       desktop_bg_mngr.set_background((RDesktopBackground*)&bg);
     }
+
+    imgs_in_line++;
+    if (ImGui::GetContentRegionAvail().x >
+        (img_button_size * (imgs_in_line + 1)))
+      ImGui::SameLine();
+    else
+      imgs_in_line = 0;
   }
 }
 
 void RSettingsView::render() {
+  ImGui::SetNextWindowSize({400.0f, 250.0f}, ImGuiCond_FirstUseEver);
   ImGui::Begin(
-      r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)),
-      &open_);
+      r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)), &open_,
+      ImGuiWindowFlags_NoTitleBar);
+
+  if (ImGui::IsKeyPressed(ImGuiKey_Escape)) open_ = false;
 
   render_background_settings();
 

@@ -37,6 +37,7 @@ class RImage {
   const RpImageSRV get_host_srv() const { return host_srv_; }
 
  private:
+  r_string file_path_;
   RpImageSRV host_srv_;
   // screen_monitor_index - RpImageSRV keypair
   std::map<int, RpImageSRV> screen_srvs_;

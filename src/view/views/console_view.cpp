@@ -69,7 +69,9 @@ void RConsoleView::render() {
   ImGui::SetNextWindowSize({400.0f, 250.0f}, ImGuiCond_FirstUseEver);
   ImGui::Begin(
       r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)), &open_,
-      ImGuiWindowFlags_NoScrollbar);
+      ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
+
+  if (ImGui::IsKeyPressed(ImGuiKey_Escape)) open_ = false;
 
   // Scrollable history region
   ImGui::BeginChild("ScrollingRegion",

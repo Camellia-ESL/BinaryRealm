@@ -30,5 +30,8 @@ RResult<std::shared_ptr<RImage>> RImage::new_from_file(const r_string& path) {
         host_img_srv_load_res.err());
   img_res_buff->host_srv_ = host_img_srv_load_res.val();
 
+  // Set image info
+  img_res_buff->file_path_ = path;
+
   return RResult<std::shared_ptr<RImage>>::create_ok(img_res_buff);
 }
