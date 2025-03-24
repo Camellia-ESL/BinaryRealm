@@ -6,7 +6,8 @@ void RViewPool::render() {
   // looping. Looping it this way prevents any sort of crashes.
   int view_itx = 0;
   while (view_itx < views_.size()) {
-    views_[view_itx]->render();
+    auto& view = views_[view_itx];
+    if (view->update()) view->render();
     view_itx++;
   }
 }

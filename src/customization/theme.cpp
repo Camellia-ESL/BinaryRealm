@@ -76,6 +76,7 @@ void to_json(json& j, const ImGuiStyle& style) {
       {"GrabRounding", style.GrabRounding},
       {"ScrollbarSize", style.ScrollbarSize},
       {"ScrollbarRounding", style.ScrollbarRounding},
+      {"GlassBlurBackground", style.GlassBlurBackground},
   };
   for (int i = 0; i < ImGuiCol_COUNT; ++i) {
     j["Colors"].emplace_back(style.Colors[i]);
@@ -96,6 +97,7 @@ void from_json(const json& j, ImGuiStyle& style) {
   style.GrabRounding = j.value("GrabRounding", 0.0f);
   style.ScrollbarSize = j.value("ScrollbarSize", 0.0f);
   style.ScrollbarRounding = j.value("ScrollbarRounding", 0.0f);
+  style.GlassBlurBackground = j.value("GlassBlurBackground", false);
 
   if (j.contains("Colors")) {
     for (size_t i = 0; i < ImGuiCol_COUNT && i < j["Colors"].size(); ++i) {
@@ -108,13 +110,15 @@ void from_json(const json& j, ImGuiStyle& style) {
 void to_json(json& j, const RTheme& theme) {
   j = json{{"name", theme.name},
            {"imgui_style", theme.imgui_style},
-           {"is_default", theme.is_default}};
+           {"is_default", theme.is_default},
+           {"viewport_default_size", theme.viewport_default_size}};
 }
 
 void from_json(const json& j, RTheme& theme) {
   theme.name = j.value("name", "");
   theme.imgui_style = j.value("imgui_style", ImGui::GetStyle());
   theme.is_default = j.value("is_default", false);
+  theme.viewport_default_size = j.value("viewport_default_size", ImVec2());
 }
 
 bool RThemeManager::save() {
@@ -203,7 +207,7 @@ void RThemeManager::load_default_theme(RTheme& theme) {
   ImVec4* colors = theme.imgui_style.Colors;
   colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
   colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-  colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.95f);
+  colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.2f);
   colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
   colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
   colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
@@ -280,4 +284,5 @@ void RThemeManager::load_default_theme(RTheme& theme) {
   style.GrabRounding = 3;
   style.LogSliderDeadzone = 4;
   style.TabRounding = 4;
+  style.GlassBlurBackground = true;
 }

@@ -1417,6 +1417,58 @@ void ImGui_ImplWin32_EnableAlphaCompositing(void* hwnd) {
 
     ::DwmEnableBlurBehindWindow((HWND)hwnd, &bb);
   }
+
+  if (!ImGui::GetStyle().GlassBlurBackground) return;
+
+  // Adjust the window composition attributes for more advanced blur (for modern
+  // Windows)
+  const HINSTANCE hModule = LoadLibrary(TEXT("user32.dll"));
+  if (hModule) {
+    typedef enum _ACCENT_STATE {
+      ACCENT_DISABLED = 0,
+      ACCENT_ENABLE_GRADIENT = 1,
+      ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+      ACCENT_ENABLE_BLURBEHIND = 3,
+      ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+      ACCENT_ENABLE_HOSTBACKDROP =
+          5,  // Available on newer Windows versions (e.g. Windows 11)
+      ACCENT_INVALID_STATE = 6
+    } ACCENT_STATE;
+
+    struct ACCENT_POLICY {
+      ACCENT_STATE nAccentState;
+      int nFlags;
+      int nColor;
+      int nAnimationId;
+    };
+
+    struct WINDOWCOMPOSITIONATTRIBDATA {
+      int nAttribute;
+      void* pData;
+      ULONG ulDataSize;
+    };
+
+    typedef BOOL(WINAPI * pSetWindowCompositionAttribute)(
+        HWND, WINDOWCOMPOSITIONATTRIBDATA*);
+    const pSetWindowCompositionAttribute SetWindowCompositionAttribute =
+        (pSetWindowCompositionAttribute)GetProcAddress(
+            hModule, "SetWindowCompositionAttribute");
+
+    if (SetWindowCompositionAttribute) {
+      ACCENT_POLICY accent = {};
+      accent.nAccentState = ACCENT_ENABLE_ACRYLICBLURBEHIND;
+      // Important for blur settings (2 - uses nColor property, 4
+      // stronger blur, 6 a blend of the 2 other props)
+      accent.nFlags = 0;
+      accent.nColor = 0;
+      accent.nAnimationId = 0;
+
+      WINDOWCOMPOSITIONATTRIBDATA data = {19, &accent, sizeof(accent)};
+      SetWindowCompositionAttribute((HWND)hwnd, &data);
+    }
+
+    FreeLibrary(hModule);
+  }
 }
 
 //---------------------------------------------------------------------------------------------------------

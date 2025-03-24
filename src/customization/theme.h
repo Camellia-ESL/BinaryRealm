@@ -24,13 +24,17 @@ struct RTheme {
    */
   r_string name;
   /*
-   * The color style of imgui
+   * The internal style of imgui
    */
   ImGuiStyle imgui_style;
   /*
    * Whether if the theme is set to be the default one
    */
   bool is_default = false;
+  /*
+   * Viewports default size when opened
+   */
+  ImVec2 viewport_default_size = {800, 600};
 };
 
 /*

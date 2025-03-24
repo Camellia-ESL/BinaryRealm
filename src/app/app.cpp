@@ -56,7 +56,7 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
     // quit
     if (win_api == RWindowApi::RWIN32) {
       is_running = RWin32Api::process_messages();
-      r_process_keybinds_win32();
+      r_process_keybinds();
     }
 
     // Render's host window content (mainly viewports)

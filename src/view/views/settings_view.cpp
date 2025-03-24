@@ -2,7 +2,19 @@
 
 #include "../../../external/imgui/imgui.h"
 #include "../../config/config_manager.h"
-#include "../viewpool.h"
+
+void render_background_settings();
+
+void RSettingsView::render() {
+  play_opening_anim();
+
+  ImGui::Begin(r_str_to_cstr(get_name() + "##" + uuid_), &open_,
+               ImGuiWindowFlags_NoTitleBar);
+
+  render_background_settings();
+
+  ImGui::End();
+}
 
 void render_background_settings() {
   auto& desktop_bg_mngr = RConfigsManager::get().get_desktop_bg_mngr();
@@ -27,20 +39,4 @@ void render_background_settings() {
     else
       imgs_in_line = 0;
   }
-}
-
-void RSettingsView::render() {
-  ImGui::SetNextWindowSize({400.0f, 250.0f}, ImGuiCond_FirstUseEver);
-  ImGui::Begin(
-      r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)), &open_,
-      ImGuiWindowFlags_NoTitleBar);
-
-  if (ImGui::IsKeyPressed(ImGuiKey_Escape)) open_ = false;
-
-  render_background_settings();
-
-  ImGui::End();
-
-  // Destroy's the view when it get's closed
-  if (!open_) RViewPool::get().destroy(this);
 }

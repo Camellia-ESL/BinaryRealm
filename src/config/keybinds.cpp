@@ -10,10 +10,10 @@
 #include "../view/views/console_view.h"
 #include "../view/views/settings_view.h"
 
-// Win32 key watcher used to check if a key is pressed
-class KeyWatcherWin32 {
+// Key watcher used to check if a key is pressed, down or up
+class KeyWatcher {
  public:
-  KeyWatcherWin32(int key) : key_(key), active_(false) {}
+  KeyWatcher(int key) : key_(key), active_(false) {}
 
   bool is_pressed(std::vector<int> mod_keys = {}) {
     for (auto mod_key : mod_keys) {
@@ -40,12 +40,11 @@ class KeyWatcherWin32 {
   bool active_;
 };
 
-void r_process_keybinds_win32() {
+void r_process_keybinds() {
   ImGuiIO& io = ImGui::GetIO();
 
   // Setup watchers
-  static KeyWatcherWin32 tab_key{VK_TAB};
-  static KeyWatcherWin32 oem_5_key{VK_OEM_5};
+  static KeyWatcher oem_5_key{VK_OEM_5};
 
   // Open console window when shift + oem_5 is pressed
   if (oem_5_key.is_pressed({VK_CONTROL}))
@@ -53,4 +52,9 @@ void r_process_keybinds_win32() {
 
   // Open settings window when alt + oem_5 is pressed
   if (oem_5_key.is_pressed({VK_RMENU})) RViewPool::get().spawn<RSettingsView>();
+}
+
+bool r_is_view_close_keybind_pressed() {
+  static KeyWatcher esc_key{VK_ESCAPE};
+  return esc_key.is_pressed();
 }

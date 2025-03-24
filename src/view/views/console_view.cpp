@@ -8,7 +8,6 @@
 
 #include "../../../external/imgui/imgui.h"
 #include "../../config/config_manager.h"
-#include "../viewpool.h"
 
 /*
  * Register a new command.
@@ -65,13 +64,10 @@ static std::vector<r_string> r_extract_cmd_flags(const r_string& args) {
 }
 
 void RConsoleView::render() {
-  static bool is_first_render = true;
-  ImGui::SetNextWindowSize({400.0f, 250.0f}, ImGuiCond_FirstUseEver);
-  ImGui::Begin(
-      r_str_to_cstr(get_name() + "##" + std::to_string((uint64_t)this)), &open_,
-      ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
+  play_opening_anim();
 
-  if (ImGui::IsKeyPressed(ImGuiKey_Escape)) open_ = false;
+  ImGui::Begin(r_str_to_cstr(get_name() + "##" + uuid_), &open_,
+               ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
 
   // Scrollable history region
   ImGui::BeginChild("ScrollingRegion",
@@ -97,9 +93,6 @@ void RConsoleView::render() {
   }
 
   ImGui::End();
-
-  // Destroy's the view when it get's closed
-  if (!open_) RViewPool::get().destroy(this);
 }
 
 void RConsoleView::process_command_async_(const r_string& command) {

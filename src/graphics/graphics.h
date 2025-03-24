@@ -14,7 +14,7 @@
 /*
  * All the available graphics apis
  */
-enum RGraphicsApiType { D3D11 };
+enum class RGraphicsApiType { D3D11 };
 
 /*
  * Represent's an abstracted graphics api backend

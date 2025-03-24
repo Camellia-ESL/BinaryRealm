@@ -21,7 +21,7 @@ typedef void* RWindowNativeHandle;
 /*
  * All the available platforms window apis
  */
-enum RWindowApi {
+enum class RWindowApi {
   /*
    * Win32 native window apis
    */

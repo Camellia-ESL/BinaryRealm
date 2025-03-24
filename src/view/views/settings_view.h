@@ -10,8 +10,4 @@ class RSettingsView : public RView {
   void render() override;
   // Return's settings view name
   constexpr const char* get_name() const override { return "Settings View"; };
-
- private:
-  // When set to false destroy's the window
-  bool open_ = true;
 };

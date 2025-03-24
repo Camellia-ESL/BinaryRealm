@@ -2,7 +2,7 @@
 
 Below all the documentation regarding coding standards.
 
-### Syntax 
+### Syntax
 
 The project use's the modern google naming convention with few modifications. If you are unsure about how to name something just look at the code.
 
@@ -15,9 +15,11 @@ NOTE: Once they are added to a piece of code, the code needs to maintain that st
 **Full list of all flags**
 
 - [SINGLETON] -> A class having this flag is a singleton instance.
-- [THREADSAFE] -> A class, or function or variable that can be considered threadsafe.
+- [THREADSAFE] -> A class, function or variable that can be considered threadsafe.
+- [PRIVATE_USAGE] -> A class, function or variable that is exposed only for private usage therefore it should not be used if not for strict internal implementation.
 
 Flags example
+
 ``` cpp
     /*
      * [SINGLETON] [THREADSAFE] Manages interactions with views. Spawns, destroys
