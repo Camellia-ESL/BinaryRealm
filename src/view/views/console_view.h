@@ -16,9 +16,9 @@ void r_register_console_cmds();
 /*
  * A custom console that can execute normal console commands + custom commands
  */
-class RConsoleView : public RView {
+class RConsoleView : public RWindowView {
  public:
-  using RView::RView;
+  using RWindowView::RWindowView;
   /*
    * Render function to be implemented by derived views
    */

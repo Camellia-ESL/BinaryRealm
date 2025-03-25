@@ -21,7 +21,10 @@ float RAnimVal::val() {
 
 void RAnimVal::update(float delta) {
   if (!is_playing) return;
-  if (elapsed >= duration) is_playing = false;
+  if (elapsed >= duration) {
+    play_count++;
+    reset();
+  }
   accumulator_ += delta;
 
   while (accumulator_ >= FIXED_DELTA) {
@@ -39,8 +42,13 @@ float RAnimVal::quadratic_bezier_(float t) {
 
 float RAnimVal::cubic_bezier_(float t) {
   float u = 1 - t;
-  return u * u * u * start_val + 3 * u * u * t * bezier_p1 +
-         3 * u * t * t * bezier_p2 + t * t * t * end_val;
+  float tt = t * t;
+  float uu = u * u;
+  float uuu = uu * u;
+  float ttt = tt * t;
+
+  return (uuu * start_val) + (3 * uu * t * bezier_p1) +
+         (3 * u * tt * bezier_p2) + (ttt * end_val);
 }
 
 float RAnimVal::ease_out_cubic_(float t) { return 1 - pow(1 - t, 3); }

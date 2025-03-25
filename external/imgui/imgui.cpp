@@ -12793,6 +12793,11 @@ bool ImGui::IsWindowFocused(ImGuiFocusedFlags flags)
         return (ref_window == cur_window);
 }
 
+bool ImGui::IsViewportFocused() {
+    ImGuiViewport* viewport = ImGui::GetWindowViewport();
+    return (viewport && (viewport->Flags & ImGuiViewportFlags_IsFocused));
+}
+
 static int ImGui::FindWindowFocusIndex(ImGuiWindow* window)
 {
     ImGuiContext& g = *GImGui;

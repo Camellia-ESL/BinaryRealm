@@ -190,11 +190,12 @@ ImFontAtlasFlags, ImFontAtlas, ImFont)
 #pragma clang diagnostic ignored \
     "-Wfloat-equal"  // warning: comparing floating point with == or != is
                      // unsafe
-#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"  // warning:
-                                                                    // zero as
-                                                                    // null
-                                                                    // pointer
-                                                                    // constant
+#pragma clang diagnostic ignored \
+    "-Wzero-as-null-pointer-constant"  // warning:
+                                       // zero as
+                                       // null
+                                       // pointer
+                                       // constant
 #pragma clang diagnostic ignored \
     "-Wreserved-identifier"  // warning: identifier '_Xxx' is reserved because
                              // it starts with '_' followed by a capital letter
@@ -299,9 +300,9 @@ struct ImGuiSelectionBasicStorage;  // Optional helper to store multi-selection
 struct ImGuiSelectionExternalStorage;  // Optional helper to apply
                                        // multi-selection requests to existing
                                        // randomly accessible storage.
-struct ImGuiSelectionRequest;  // A selection request (stored in
-                               // ImGuiMultiSelectIO)
-struct ImGuiSizeCallbackData;  // Callback data when using
+struct ImGuiSelectionRequest;          // A selection request (stored in
+                                       // ImGuiMultiSelectIO)
+struct ImGuiSizeCallbackData;          // Callback data when using
                                // SetNextWindowSizeConstraints() (rare/advanced
                                // use)
 struct ImGuiStorage;  // Helper for key->value storage (container sorted by key)
@@ -708,6 +709,7 @@ IMGUI_API bool IsWindowFocused(
     ImGuiFocusedFlags flags =
         0);  // is current window focused? or its root/child, depending on
              // flags. see flags for options.
+IMGUI_API bool IsViewportFocused();  // is the current viewport focused?
 IMGUI_API bool IsWindowHovered(
     ImGuiHoveredFlags flags =
         0);  // is current window hovered and hoverable (e.g. not blocked by a
@@ -1106,6 +1108,8 @@ IMGUI_API void SeparatorText(
 // IsItemHovered, etc.) to query widget state.
 IMGUI_API bool Button(const char* label,
                       const ImVec2& size = ImVec2(0, 0));  // button
+IMGUI_API bool ToggleButton(
+    const char* label, bool* v);  // toggle button with animated rounded circle
 IMGUI_API bool SmallButton(
     const char* label);  // button with (FramePadding.y == 0) to easily embed
                          // within text
@@ -3376,18 +3380,18 @@ enum ImGuiKey : int {
                              // (Focus/Move/Resize windows)
   ImGuiKey_GamepadFaceRight,  // B (Xbox)         A (Switch)   Circle (PS) //
                               // Cancel / Close / Exit
-  ImGuiKey_GamepadFaceUp,  // Y (Xbox)         X (Switch)   Triangle (PS) //
-                           // Text Input / On-screen Keyboard
-  ImGuiKey_GamepadFaceDown,  // A (Xbox)         B (Switch)   Cross (PS) //
-                             // Activate / Open / Toggle / Tweak
-  ImGuiKey_GamepadDpadLeft,  // D-pad Left // Move / Tweak / Resize Window (in
-                             // Windowing mode)
+  ImGuiKey_GamepadFaceUp,     // Y (Xbox)         X (Switch)   Triangle (PS) //
+                              // Text Input / On-screen Keyboard
+  ImGuiKey_GamepadFaceDown,   // A (Xbox)         B (Switch)   Cross (PS) //
+                              // Activate / Open / Toggle / Tweak
+  ImGuiKey_GamepadDpadLeft,   // D-pad Left // Move / Tweak / Resize Window (in
+                              // Windowing mode)
   ImGuiKey_GamepadDpadRight,  // D-pad Right // Move / Tweak / Resize Window (in
                               // Windowing mode)
-  ImGuiKey_GamepadDpadUp,  // D-pad Up // Move / Tweak / Resize Window (in
-                           // Windowing mode)
-  ImGuiKey_GamepadDpadDown,  // D-pad Down // Move / Tweak / Resize Window (in
-                             // Windowing mode)
+  ImGuiKey_GamepadDpadUp,     // D-pad Up // Move / Tweak / Resize Window (in
+                              // Windowing mode)
+  ImGuiKey_GamepadDpadDown,   // D-pad Down // Move / Tweak / Resize Window (in
+                              // Windowing mode)
   ImGuiKey_GamepadL1,  // L Bumper (Xbox)  L (Switch)   L1 (PS)            //
                        // Tweak Slower / Focus Previous (in Windowing mode)
   ImGuiKey_GamepadR1,  // R Bumper (Xbox)  R (Switch)   R1 (PS)            //
@@ -3669,7 +3673,7 @@ enum ImGuiCol_ {
   ImGuiCol_TabDimmedSelected,  // Tab background, when tab-bar is unfocused &
                                // tab is selected
   ImGuiCol_TabDimmedSelectedOverline,  //..horizontal overline, when tab-bar is
-                                       //unfocused & tab is selected
+                                       // unfocused & tab is selected
   ImGuiCol_DockingPreview,  // Preview overlay color when about to docking
                             // something
   ImGuiCol_DockingEmptyBg,  // Background color for empty node (e.g. CentralNode
@@ -5136,8 +5140,8 @@ struct ImGuiIO {
                                          // multiple items have conflicting
                                          // identifiers.
   bool ConfigDebugHighlightIdConflictsShowItemPicker;  //=true // Show "Item
-                                                       //Picker" button in
-                                                       //aforementioned popup.
+                                                       // Picker" button in
+                                                       // aforementioned popup.
 
   // Tools to test correct Begin/End and BeginChild/EndChild behaviors.
   // - Presently Begin()/End() and BeginChild()/EndChild() needs to ALWAYS be
@@ -5255,7 +5259,7 @@ struct ImGuiIO {
   IMGUI_API void ClearEventsQueue();  // Clear all incoming events.
   IMGUI_API void ClearInputKeys();    // Clear current keyboard/gamepad state +
                                       // current frame text input buffer.
-                                    // Equivalent to releasing all keys/buttons.
+  // Equivalent to releasing all keys/buttons.
   IMGUI_API void ClearInputMouse();  // Clear current mouse state.
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
   IMGUI_API void
@@ -5530,8 +5534,8 @@ struct ImGuiInputTextCallbackData {
                    // string.length()
   int BufSize;     // Buffer size (in bytes) = capacity+1  // Read-only    //
                    // [Resize,Completion,History,Always] Include zero-terminator
-                // storage. In C land == ARRAYSIZE(my_char_array), in C++ land:
-                // string.capacity()+1
+  // storage. In C land == ARRAYSIZE(my_char_array), in C++ land:
+  // string.capacity()+1
   bool BufDirty;  // Set if you modify Buf/BufTextLen!    // Write        //
                   // [Completion,History,Always]
   int CursorPos;  //                                      // Read-write   //
@@ -6234,7 +6238,7 @@ enum ImGuiMultiSelectFlags_ {
 // code, 'app'=application/user code.
 struct ImGuiMultiSelectIO {
   //------------------------------------------// BeginMultiSelect /
-  //EndMultiSelect
+  // EndMultiSelect
   ImVector<ImGuiSelectionRequest>
       Requests;  //  ms:w, app:r     /  ms:w  app:r   // Requests to apply to
                  //  your selection data.
@@ -6255,8 +6259,8 @@ struct ImGuiMultiSelectIO {
                        //        ResetSrcItem (e.g. if deleted selection).
   int ItemsCount;      //  ms:w, app:r     /        app:r   // 'int items_count'
                        //  parameter to BeginMultiSelect() is copied here for
-                   //  convenience, allowing simpler calls to your ApplyRequests
-                   //  handler. Not used internally.
+  //  convenience, allowing simpler calls to your ApplyRequests
+  //  handler. Not used internally.
 };
 
 // Selection request type
@@ -6280,7 +6284,7 @@ enum ImGuiSelectionRequestType {
 // Selection request item
 struct ImGuiSelectionRequest {
   //------------------------------------------// BeginMultiSelect /
-  //EndMultiSelect
+  // EndMultiSelect
   ImGuiSelectionRequestType
       Type;  //  ms:w, app:r     /  ms:w, app:r   // Request type. You'll most
              //  often receive 1 Clear + 1 SetRange with a single-item range.
@@ -7108,16 +7112,17 @@ struct ImFontGlyphRangesBuilder {
     int off = (int)(n >> 5);
     ImU32 mask = 1u << (n & 31);
     UsedChars[off] |= mask;
-  }                                              // Set bit n in the array
+  }  // Set bit n in the array
   inline void AddChar(ImWchar c) { SetBit(c); }  // Add character
   IMGUI_API void AddText(
       const char* text,
       const char* text_end =
           NULL);  // Add string (each character of the UTF-8 string are added)
   IMGUI_API void AddRanges(
-      const ImWchar* ranges);  // Add ranges, e.g.
-                               // builder.AddRanges(ImFontAtlas::GetGlyphRangesDefault())
-                               // to force add all of ASCII/Latin+Ext
+      const ImWchar*
+          ranges);  // Add ranges, e.g.
+                    // builder.AddRanges(ImFontAtlas::GetGlyphRangesDefault())
+                    // to force add all of ASCII/Latin+Ext
   IMGUI_API void BuildRanges(
       ImVector<ImWchar>* out_ranges);  // Output new ranges
 };
@@ -8063,7 +8068,7 @@ static inline void PopAllowKeyboardFocus() { PopItemFlag(); }
 // Renamed in 1.77, renamed back in 1.79. Sorry!
 //-- OBSOLETED in 1.78 (from June 2020): Old drag/sliders functions that took a
 //'float power > 1.0f' argument instead of ImGuiSliderFlags_Logarithmic. See
-//github.com/ocornut/imgui/issues/3361 for details. IMGUI_API bool
+// github.com/ocornut/imgui/issues/3361 for details. IMGUI_API bool
 // DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float
 // v_speed, const void* p_min, const void* p_max, const char* format, float
 // power = 1.0f)                                                            //
@@ -8182,7 +8187,7 @@ static inline void PopAllowKeyboardFocus() { PopItemFlag(); }
 }  // namespace ImGui
 
 //-- OBSOLETED in 1.82 (from Mars 2021): flags for AddRect(), AddRectFilled(),
-//AddImageRounded(), PathRect() typedef ImDrawFlags ImDrawCornerFlags; enum
+// AddImageRounded(), PathRect() typedef ImDrawFlags ImDrawCornerFlags; enum
 // ImDrawCornerFlags_
 //{
 //    ImDrawCornerFlags_None      = ImDrawFlags_RoundCornersNone,         // Was

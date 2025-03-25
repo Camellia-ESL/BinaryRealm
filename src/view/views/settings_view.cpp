@@ -6,14 +6,11 @@
 void render_background_settings();
 
 void RSettingsView::render() {
-  play_opening_anim();
-
-  ImGui::Begin(r_str_to_cstr(get_name() + "##" + uuid_), &open_,
-               ImGuiWindowFlags_NoTitleBar);
+  begin_frame();
 
   render_background_settings();
 
-  ImGui::End();
+  end_frame();
 }
 
 void render_background_settings() {

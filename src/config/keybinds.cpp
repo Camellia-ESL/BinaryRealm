@@ -53,8 +53,3 @@ void r_process_keybinds() {
   // Open settings window when alt + oem_5 is pressed
   if (oem_5_key.is_pressed({VK_RMENU})) RViewPool::get().spawn<RSettingsView>();
 }
-
-bool r_is_view_close_keybind_pressed() {
-  static KeyWatcher esc_key{VK_ESCAPE};
-  return esc_key.is_pressed();
-}

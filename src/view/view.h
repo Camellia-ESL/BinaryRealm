@@ -1,4 +1,5 @@
 #pragma once
+#include "../../external/imgui/imgui.h"
 #include "../core/string.h"
 #include "animation.h"
 
@@ -13,7 +14,7 @@ class RView {
   RView(const r_string& tag) : tag_{tag} { init(); }
   virtual ~RView() = default;
   /*
-   * Called when the view is spawned
+   * Called when the view is spawned [MUSTCALLBASEFN]
    */
   virtual void on_spawn() {}
 
@@ -21,6 +22,11 @@ class RView {
    * Render function to be implemented by derived views
    */
   virtual void render() = 0;
+
+  /*
+   * Update's the view before rendering, return's false if the view was removed
+   */
+  virtual bool update();
 
   /*
    * Each view should have a name
@@ -31,11 +37,6 @@ class RView {
    * Get's the view tag (if one was assigned)
    */
   const r_string& get_tag() const { return tag_; }
-
-  /*
-   * Update's the view before rendering, return's false if the view was removed
-   */
-  bool update();
 
  protected:
   /*
@@ -53,21 +54,52 @@ class RView {
    */
   bool open_ = true;
 
+ private:
+  void init();
+};
+
+class RWindowView : public RView {
+ public:
+  using RView::RView;
+
+ protected:
   /*
    * The opening animated value
    */
   RAnimVal opening_anim_val_{
-      0.0f,
-      1.0f,
-      0.4f,
-      RAnimInterpolationType::EASE_OUT_CUBIC,
-  };
+      0.34f, 1.0f, 0.6f, RAnimInterpolationType::CUBIC_BEZIER, 1.56f, 0.84f};
 
   /*
-   * Play's the opening animation of the view
+   * The closing animated value
    */
-  virtual void play_opening_anim();
+  RAnimVal closing_anim_val_{
+      1.0f, 0.44f, 0.3f, RAnimInterpolationType::CUBIC_BEZIER, 1.36f, 1.14f};
+
+  virtual void on_spawn() override;
+  virtual bool update() override;
+
+  /*
+   * The opening animation of the view
+   */
+  virtual void opening_anim();
+
+  /*
+   * The opening animation of the view
+   */
+  virtual void closing_anim();
+
+  /*
+   * Begin's a fully managed ImGui window viewport frame, with animations and
+   * keybinds managed.
+   */
+  void begin_frame(ImGuiWindowFlags flags = 0);
+
+  /*
+   * End's the fully managed ImGui window viewport frame
+   */
+  void end_frame();
 
  private:
-  void init();
+  ImVec2 closing_anim_win_start_pos_{};
+  ImVec2 closing_anim_win_start_size_{};
 };

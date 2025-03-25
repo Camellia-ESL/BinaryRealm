@@ -17,6 +17,7 @@ NOTE: Once they are added to a piece of code, the code needs to maintain that st
 - [SINGLETON] -> A class having this flag is a singleton instance.
 - [THREADSAFE] -> A class, function or variable that can be considered threadsafe.
 - [PRIVATE_USAGE] -> A class, function or variable that is exposed only for private usage therefore it should not be used if not for strict internal implementation.
+- [MUSTCALLBASEFN] -> A virtual function that when overrided must always call the base function.
 
 Flags example
 

@@ -24,7 +24,7 @@ class RAnimVal {
   /*
    * The fixed delta time for the animation
    */
-  static constexpr const float FIXED_DELTA = 1.0f / 60.0f;
+  static constexpr const float FIXED_DELTA = 1.0f / 144.0f;
 
   /*
    * Total animation time
@@ -54,7 +54,12 @@ class RAnimVal {
   /*
    * Bezier control points
    */
-  float bezier_p1, bezier_p2, bezier_p3;
+  float bezier_p1, bezier_p2;
+
+  /*
+   * How many times the animation was played
+   */
+  int play_count;
 
   RAnimVal(float start, float end, float time,
            RAnimInterpolationType interpType, float bp1 = 0.25f,
@@ -67,7 +72,7 @@ class RAnimVal {
         interp_type(interpType),
         bezier_p1(bp1),
         bezier_p2(bp2),
-        bezier_p3(bp3) {}
+        play_count(0) {}
 
   /*
    * Return's the interpolated value

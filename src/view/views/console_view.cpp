@@ -64,10 +64,7 @@ static std::vector<r_string> r_extract_cmd_flags(const r_string& args) {
 }
 
 void RConsoleView::render() {
-  play_opening_anim();
-
-  ImGui::Begin(r_str_to_cstr(get_name() + "##" + uuid_), &open_,
-               ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar);
+  begin_frame(ImGuiWindowFlags_NoScrollbar);
 
   // Scrollable history region
   ImGui::BeginChild("ScrollingRegion",
@@ -92,7 +89,7 @@ void RConsoleView::render() {
     ImGui::SetKeyboardFocusHere(-1);
   }
 
-  ImGui::End();
+  end_frame();
 }
 
 void RConsoleView::process_command_async_(const r_string& command) {

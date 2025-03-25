@@ -3,9 +3,9 @@
 #include "../view.h"
 
 // App settings view
-class RSettingsView : public RView {
+class RSettingsView : public RWindowView {
  public:
-  using RView::RView;
+  using RWindowView::RWindowView;
   // Render function to be implemented by derived views
   void render() override;
   // Return's settings view name
