@@ -14,6 +14,7 @@
 #include "../../external/nhlomannjson/json.hpp"
 #include "../core/containers.h"
 #include "../core/string.h"
+#include "font.h"
 
 /*
  * Represent's an application theme
@@ -35,6 +36,14 @@ struct RTheme {
    * Viewports default size when opened
    */
   ImVec2 viewport_default_size = {800, 600};
+  /*
+   * Default background name
+   */
+  r_string default_bg_name;
+  /*
+   * The active font name
+   */
+  r_string font_name;
 };
 
 /*
@@ -46,6 +55,11 @@ class RThemeManager {
    * Get's the themes dir path
    */
   static const r_string get_theme_dir_path();
+
+  /*
+   * Get's the font dir path
+   */
+  static const r_string get_font_dir_path();
 
   /*
    * Create's a new theme, save's it in a file and returns it in a result
@@ -92,4 +106,10 @@ class RThemeManager {
  private:
   std::shared_ptr<RTheme> selected_theme_;
   std::vector<std::shared_ptr<RTheme>> themes_;
+  std::vector<std::shared_ptr<RFont>> fonts_;
+
+  /*
+   * Load fonts into imgui font atlas
+   */
+  void load_fonts_();
 };

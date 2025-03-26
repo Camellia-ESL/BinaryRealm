@@ -36,6 +36,11 @@ class RImage {
    */
   const RpImageSRV get_host_srv() const { return host_srv_; }
 
+  /*
+   * Get's the path to the file used to load the image
+   */
+  const r_string& get_file_path() const { return file_path_; }
+
  private:
   r_string file_path_;
   RpImageSRV host_srv_;

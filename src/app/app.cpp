@@ -9,14 +9,24 @@
 #include "../view/viewpool.h"
 #include "../view/views/console_view.h"
 #include "screen.h"
-#include "window_apis/win32_api.h"
 
 #ifdef _WIN32
 #include <shellscalingapi.h>
+
+#include "window_apis/win32_api.h"
+
 #pragma comment(lib, "Shcore.lib")
 
-BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor,
-                              LPRECT lprcMonitor, LPARAM dwData);
+static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor,
+                                     LPRECT lprcMonitor, LPARAM dwData) {
+  auto monitors = reinterpret_cast<std::vector<RScreenRect>*>(dwData);
+
+  RScreenRect rect{*(RScreenRect*)lprcMonitor};
+  monitors->emplace_back(rect);
+
+  return TRUE;
+}
+
 #endif
 
 std::vector<RScreenRect> fetch_screen_rects();
@@ -75,16 +85,6 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
       screen->get_bg_window().get_gfx().render();
     }
   }
-}
-
-BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor,
-                              LPRECT lprcMonitor, LPARAM dwData) {
-  auto monitors = reinterpret_cast<std::vector<RScreenRect>*>(dwData);
-
-  RScreenRect rect{*(RScreenRect*)lprcMonitor};
-  monitors->emplace_back(rect);
-
-  return TRUE;
 }
 
 std::vector<RScreenRect> fetch_screen_rects() {

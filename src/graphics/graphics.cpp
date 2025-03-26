@@ -9,7 +9,7 @@ void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   ImGui::SetCurrentContext(imgui_ctx_);
 
   ImGuiIO& io = ImGui::GetIO();
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  // TODO: Remove imgui navigation keybinds
 
   // Required to detach imgui window viewports from the app
   static bool test = false;

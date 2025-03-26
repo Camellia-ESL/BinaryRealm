@@ -1,5 +1,6 @@
 #include "theme.h"
 
+#include <filesystem>
 #include <fstream>
 #include <future>
 #include <memory>
@@ -14,6 +15,9 @@ using json = nlohmann::json;
 
 const r_string RThemeManager::get_theme_dir_path() {
   return RConfigsManager::get().get_config_dir_path() + "\\themes";
+}
+const r_string RThemeManager::get_font_dir_path() {
+  return RConfigsManager::get().get_config_dir_path() + "\\fonts";
 }
 
 RResult<std::shared_ptr<RTheme>> RThemeManager::create_theme(
@@ -111,7 +115,9 @@ void to_json(json& j, const RTheme& theme) {
   j = json{{"name", theme.name},
            {"imgui_style", theme.imgui_style},
            {"is_default", theme.is_default},
-           {"viewport_default_size", theme.viewport_default_size}};
+           {"viewport_default_size", theme.viewport_default_size},
+           {"default_bg_name", theme.default_bg_name},
+           {"font_name", theme.font_name}};
 }
 
 void from_json(const json& j, RTheme& theme) {
@@ -119,6 +125,8 @@ void from_json(const json& j, RTheme& theme) {
   theme.imgui_style = j.value("imgui_style", ImGui::GetStyle());
   theme.is_default = j.value("is_default", false);
   theme.viewport_default_size = j.value("viewport_default_size", ImVec2());
+  theme.default_bg_name = j.value("default_bg_name", "");
+  theme.font_name = j.value("font_name", "");
 }
 
 bool RThemeManager::save() {
@@ -176,6 +184,9 @@ bool RThemeManager::load() {
         }));
   }
 
+  // Loads fonts while loading themes
+  load_fonts_();
+
   // Collect results
   for (auto& fut : futures) {
     auto p_theme = fut.get();
@@ -193,13 +204,30 @@ bool RThemeManager::load() {
 void RThemeManager::set_active_theme(std::shared_ptr<RTheme> theme) {
   if (!theme) return;
 
+  // Swap context before theme swapping
   auto prev_ctx = ImGui::GetCurrentContext();
   ImGui::SetCurrentContext(RApp::get().get_main_imgui_ctx());
 
+  // Set the theme as the selected one
   selected_theme_ = theme;
   selected_theme_->is_default = true;
+
+  // Set the imgui style
   ImGui::GetStyle() = selected_theme_->imgui_style;
 
+  // Set the default image background for this theme
+  auto& bg_mngr = RConfigsManager::get().get_desktop_bg_mngr();
+  for (const auto& bg : bg_mngr.get_loaded_bgs())
+    if (std::filesystem::path(bg.img->get_file_path()).filename().string() ==
+        theme->default_bg_name)
+      bg_mngr.set_background((RDesktopBackground*)&bg);
+
+  // Set the default font for this theme
+  for (const auto& font : fonts_)
+    if (font->name == theme->default_bg_name)
+      ImGui::GetIO().FontDefault = font->p_font;
+
+  // Reset the context back
   ImGui::SetCurrentContext(prev_ctx);
 }
 
@@ -285,4 +313,22 @@ void RThemeManager::load_default_theme(RTheme& theme) {
   style.LogSliderDeadzone = 4;
   style.TabRounding = 4;
   style.GlassBlurBackground = true;
+}
+
+void RThemeManager::load_fonts_() {
+  auto dir_read_res = RFilesystemUtils::get_files_in_dir(get_font_dir_path());
+  if (!dir_read_res.ok()) return;
+
+  for (const auto& file_path : dir_read_res.val()) {
+    r_string file_path_str = file_path.string();
+    ImFont* font_rsc =
+        ImGui::GetIO().Fonts->AddFontFromFileTTF(file_path_str.c_str(), 16.0f);
+    if (!font_rsc) continue;
+
+    auto font_info_buff = std::make_shared<RFont>();
+    font_info_buff->p_font = font_rsc;
+    font_info_buff->file_path = file_path_str;
+    font_info_buff->name = std::filesystem::path(file_path).filename().string();
+    fonts_.push_back(font_info_buff);
+  }
 }

@@ -63,15 +63,17 @@ bool RDesktopBackgroundManager::load() {
 
 RResult<RDesktopBackground> RDesktopBackgroundManager::load_new_bg_from_file(
     const r_string& path) {
-  // Tries to load the image
-  auto texture_load_res = RImage::new_from_file(path);
-  if (!texture_load_res.ok())
-    return RResult<RDesktopBackground>::create_err(texture_load_res.err());
-
   // Tries to copy the texture in the config dir
   if (!RFilesystemUtils::copy_file(path, get_bg_images_dir_path()))
     return RResult<RDesktopBackground>::create_err(
         "Error copying the background in the configs!");
+
+  // Tries to load the image
+  auto texture_load_res =
+      RImage::new_from_file(get_bg_images_dir_path() + "\\" +
+                            std::filesystem::path(path).filename().string());
+  if (!texture_load_res.ok())
+    return RResult<RDesktopBackground>::create_err(texture_load_res.err());
 
   loaded_bgs_.emplace_back(texture_load_res.val());
 
