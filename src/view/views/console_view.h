@@ -19,13 +19,9 @@ void r_register_console_cmds();
 class RConsoleView : public RWindowView {
  public:
   using RWindowView::RWindowView;
-  /*
-   * Render function to be implemented by derived views
-   */
+
+  void on_spawn() override;
   void render() override;
-  /*
-   * Return's settings view name
-   */
   constexpr const char* get_name() const override { return "Console View"; };
 
   /*
@@ -41,6 +37,7 @@ class RConsoleView : public RWindowView {
   char cmd_input_buffer_[256] = {0};
   std::deque<r_string> cmds_history_;
   std::mutex cmds_history_mtx_;
+  r_string working_dir_path_;
 
   /*
    * [THREADSAFE] Process a command asynchronously and thread safe

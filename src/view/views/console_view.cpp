@@ -63,6 +63,10 @@ static std::vector<r_string> r_extract_cmd_flags(const r_string& args) {
   return arguments;
 }
 
+void RConsoleView::on_spawn() {
+  RWindowView::on_spawn();
+  working_dir_path_ = std::filesystem::current_path().string();
+}
 void RConsoleView::render() {
   begin_frame(ImGuiWindowFlags_NoScrollbar);
 
@@ -78,6 +82,8 @@ void RConsoleView::render() {
   ImGui::EndChild();
 
   // Command input
+  ImGui::TextUnformatted(working_dir_path_.c_str());
+  ImGui::SameLine();
   ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
   if (ImGui::InputText("##input", cmd_input_buffer_,
                        IM_ARRAYSIZE(cmd_input_buffer_),
@@ -116,6 +122,7 @@ void RConsoleView::exec_sys_cmd(const r_string& command) {
     if (std::filesystem::exists(new_path) &&
         std::filesystem::is_directory(new_path)) {
       std::filesystem::current_path(new_path);
+      working_dir_path_ = std::filesystem::current_path().string();
       add_exec_res_to_history_("Changed directory to: " + new_path);
     } else {
       add_exec_res_to_history_("Error: Invalid directory!");

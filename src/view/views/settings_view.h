@@ -10,4 +10,11 @@ class RSettingsView : public RWindowView {
   void render() override;
   // Return's settings view name
   constexpr const char* get_name() const override { return "Settings View"; };
+
+ private:
+  ImGuiTextFilter thm_opts_filter_;
+  ImGuiColorEditFlags thm_alpha_flags_ = 0;
+
+  void render_background_settings_();
+  void render_theme_settings_();
 };
