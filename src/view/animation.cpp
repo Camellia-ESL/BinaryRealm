@@ -24,6 +24,7 @@ void RAnimVal::update(float delta) {
   if (elapsed >= duration) {
     play_count++;
     reset();
+    if (next_) next_->play();
   }
   accumulator_ += delta;
 

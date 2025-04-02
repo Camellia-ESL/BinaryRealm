@@ -67,6 +67,7 @@ void RConsoleView::on_spawn() {
   RWindowView::on_spawn();
   working_dir_path_ = std::filesystem::current_path().string();
 }
+
 void RConsoleView::render() {
   begin_frame(ImGuiWindowFlags_NoScrollbar);
 
@@ -78,6 +79,11 @@ void RConsoleView::render() {
     for (const auto& line : cmds_history_) {
       ImGui::TextUnformatted(line.c_str());
     }
+
+    if (prev_history_size_ != cmds_history_.size()) {
+      prev_history_size_ = cmds_history_.size();
+      ImGui::SetScrollHereY();
+    }
   }
   ImGui::EndChild();
 
@@ -85,6 +91,7 @@ void RConsoleView::render() {
   ImGui::TextUnformatted(working_dir_path_.c_str());
   ImGui::SameLine();
   ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+  ImGui::PushStyleColor(ImGuiCol_FrameBg, {0.0f, 0.0f, 0.0f, 0.0f});
   if (ImGui::InputText("##input", cmd_input_buffer_,
                        IM_ARRAYSIZE(cmd_input_buffer_),
                        ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -94,6 +101,7 @@ void RConsoleView::render() {
     memset(cmd_input_buffer_, 0, sizeof(cmd_input_buffer_));
     ImGui::SetKeyboardFocusHere(-1);
   }
+  ImGui::PopStyleColor();
 
   end_frame();
 }
@@ -123,7 +131,7 @@ void RConsoleView::exec_sys_cmd(const r_string& command) {
         std::filesystem::is_directory(new_path)) {
       std::filesystem::current_path(new_path);
       working_dir_path_ = std::filesystem::current_path().string();
-      add_exec_res_to_history_("Changed directory to: " + new_path);
+      add_exec_res_to_history_("Changed directory to: " + working_dir_path_);
     } else {
       add_exec_res_to_history_("Error: Invalid directory!");
     }

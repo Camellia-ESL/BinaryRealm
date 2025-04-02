@@ -10,6 +10,18 @@ const r_string RDesktopBackgroundManager::get_bg_images_dir_path() {
   return RConfigsManager::get().get_config_dir_path() + "\\backgrounds\\images";
 }
 
+void RDesktopBackgroundManager::update() {
+  static RDesktopBackground* prev_bg = nullptr;
+  if (prev_bg != cur_bg_) {
+    prev_bg = cur_bg_;
+    bg_change_anim_val_rot_1_.concatenate(&bg_change_anim_val_rot_2_);
+    bg_change_anim_val_rot_1_.play();
+  }
+
+  bg_change_anim_val_rot_1_.update(ImGui::GetIO().DeltaTime);
+  bg_change_anim_val_rot_2_.update(ImGui::GetIO().DeltaTime);
+}
+
 void RDesktopBackgroundManager::render(RScreen& screen) {
   // If there is no background image set simply returns
   if (!cur_bg_) return;
@@ -17,9 +29,33 @@ void RDesktopBackgroundManager::render(RScreen& screen) {
   auto& io = ImGui::GetIO();
   ImDrawList* draw_list = ImGui::GetForegroundDrawList();
 
-  draw_list->AddImage((ImTextureID)cur_bg_->img->get_screen_srvs().at(
-                          screen.get_monitor_index()),
-                      {0.0f, 0.0f}, ImGui::GetIO().DisplaySize);
+  if ((bg_change_anim_val_rot_1_.is_playing ||
+       bg_change_anim_val_rot_2_.is_playing) &&
+      prev_bg_) {
+    const ImVec2 display_size = ImGui::GetIO().DisplaySize;
+    draw_list->AddImage((ImTextureID)prev_bg_->img->get_screen_srvs().at(
+                            screen.get_monitor_index()),
+                        {0.0f, 0.0f}, display_size);
+    draw_list->AddImageQuad(
+        (ImTextureID)cur_bg_->img->get_screen_srvs().at(
+            screen.get_monitor_index()),
+        {0.0f, 0.0f}, {display_size.x * bg_change_anim_val_rot_1_.val(), 0.0f},
+        {display_size.x * bg_change_anim_val_rot_1_.val(),
+         display_size.y * (bg_change_anim_val_rot_2_.is_playing
+                               ? bg_change_anim_val_rot_2_.val()
+                               : 0.0f)},
+        {0.0f, display_size.y}, {0.0f, 0.0f}, {1.0f, 0.0f},
+        {1.0f,
+         (bg_change_anim_val_rot_2_.is_playing ? bg_change_anim_val_rot_2_.val()
+                                               : 0.0f)},
+        {0.0f, 1.0f});
+  } else {
+    draw_list->AddImage(
+        (ImTextureID)cur_bg_->img->get_screen_srvs().at(
+            screen.get_monitor_index()),
+        {0.0f, 0.0f},
+        ImGui::GetIO().DisplaySize * bg_change_anim_val_rot_1_.val());
+  }
 }
 
 bool RDesktopBackgroundManager::load() {
@@ -59,6 +95,10 @@ bool RDesktopBackgroundManager::load() {
   set_background(&loaded_bgs_[0]);
 
   return true;
+}
+void RDesktopBackgroundManager::set_background(RDesktopBackground* bg) {
+  prev_bg_ = cur_bg_;
+  cur_bg_ = bg;
 }
 
 RResult<RDesktopBackground> RDesktopBackgroundManager::load_new_bg_from_file(

@@ -5,6 +5,7 @@
 
 #include "../app/screen.h"
 #include "../core/filesystem_utils.h"
+#include "../view/animation.h"
 
 /*
  * Represent's a desktop background
@@ -24,7 +25,12 @@ class RDesktopBackgroundManager {
   static const r_string get_bg_images_dir_path();
 
   /*
-   * Render's a desktop background
+   * Called once per frame
+   */
+  void update();
+
+  /*
+   * Called per screen render, render's a desktop background
    */
   void render(RScreen& screen);
 
@@ -36,7 +42,7 @@ class RDesktopBackgroundManager {
   /*
    * Set the current background
    */
-  void set_background(RDesktopBackground* bg) { cur_bg_ = bg; }
+  void set_background(RDesktopBackground* bg);
 
   /*
    * Load a new background from file, it also makes a copy in the configs to
@@ -60,10 +66,27 @@ class RDesktopBackgroundManager {
   /*
    * The current background set
    */
-  RDesktopBackground* cur_bg_;
+  RDesktopBackground* cur_bg_ = nullptr;
+
+  /*
+   * The previously selected background
+   */
+  RDesktopBackground* prev_bg_ = nullptr;
 
   /*
    * All the loaded backgrounds
    */
   std::vector<RDesktopBackground> loaded_bgs_;
+
+  /*
+   * The background change animated value, first rotation
+   */
+  RAnimVal bg_change_anim_val_rot_1_{
+      0.34f, 1.0f, 0.2f, RAnimInterpolationType::CUBIC_BEZIER, 0.54f, 0.84f};
+
+  /*
+   * The background change animated value, second rotation
+   */
+  RAnimVal bg_change_anim_val_rot_2_{
+      0.0f, 1.0f, 0.2f, RAnimInterpolationType::CUBIC_BEZIER, 0.54f, 0.84f};
 };

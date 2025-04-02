@@ -73,6 +73,7 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
     host_window_->get_gfx().begin_render();
     {
       RViewPool::get().render();
+      RConfigsManager::get().get_desktop_bg_mngr().update();
     }
     host_window_->get_gfx().render();
 

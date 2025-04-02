@@ -35,6 +35,7 @@ class RConsoleView : public RWindowView {
    */
   bool open_ = true;
   char cmd_input_buffer_[256] = {0};
+  int prev_history_size_;
   std::deque<r_string> cmds_history_;
   std::mutex cmds_history_mtx_;
   r_string working_dir_path_;
