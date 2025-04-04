@@ -4815,6 +4815,27 @@ bool ImGui::InputText(const char* label, char* buf, size_t buf_size,
                      callback, user_data);
 }
 
+bool ImGui::InputText(const char* label, std::string* str,
+                      ImGuiInputTextFlags flags) {
+  // Determine a buffer size that is larger than the current string length.
+  // You can also choose a fixed size if your strings won't be too long.
+  size_t buf_size = str->size() + 256;
+  std::vector<char> buffer(buf_size);
+
+  // Copy current string content into the buffer
+  std::strncpy(buffer.data(), str->c_str(), buf_size);
+  buffer[buf_size - 1] = '\0';  // Ensure null termination
+
+  // Call ImGui::InputText with our buffer.
+  // If the text was edited, InputText returns true.
+  if (ImGui::InputText(label, buffer.data(), buf_size, flags)) {
+    // Update the std::string with the new text.
+    *str = std::string(buffer.data());
+    return true;
+  }
+  return false;
+}
+
 bool ImGui::InputTextMultiline(const char* label, char* buf, size_t buf_size,
                                const ImVec2& size, ImGuiInputTextFlags flags,
                                ImGuiInputTextCallback callback,
@@ -6304,10 +6325,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf,
   // == id)
   if (apply_new_text != NULL) {
     //// We cannot test for 'backup_current_text_length !=
-    ///apply_new_text_length' here because we have no guarantee that the size /
-    ///of our owned buffer matches the size of the string object held by the
-    ///user, and by design we allow InputText() to be used / without any storage
-    ///on user's side.
+    /// apply_new_text_length' here because we have no guarantee that the size /
+    /// of our owned buffer matches the size of the string object held by the
+    /// user, and by design we allow InputText() to be used / without any
+    /// storage on user's side.
     IM_ASSERT(apply_new_text_length >= 0);
     if (is_resizable) {
       ImGuiInputTextCallbackData callback_data;
@@ -10990,9 +11011,11 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled) {
     OpenPopup(label);
   } else if (want_open) {
     menu_is_open = true;
-    OpenPopup(label, ImGuiPopupFlags_NoReopen);  // | (want_open_nav_init ?
-                                                 // ImGuiPopupFlags_NoReopenAlwaysNavInit
-                                                 // : 0));
+    OpenPopup(
+        label,
+        ImGuiPopupFlags_NoReopen);  // | (want_open_nav_init ?
+                                    // ImGuiPopupFlags_NoReopenAlwaysNavInit
+                                    // : 0));
   }
 
   if (menu_is_open) {

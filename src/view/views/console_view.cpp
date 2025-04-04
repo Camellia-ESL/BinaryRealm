@@ -41,7 +41,7 @@ std::unique_ptr<std::unordered_map<r_string, RConsoleCommand>> r_g_commands_;
 /*
  * Register a new command.
  */
-inline constexpr void r_register_command(const r_string& name,
+inline void r_register_command(const r_string& name,
                                          const RConsoleCommand& cmd_info) {
   (*r_g_commands_)[name] = cmd_info;
 }

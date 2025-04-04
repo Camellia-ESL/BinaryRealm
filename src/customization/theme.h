@@ -25,6 +25,10 @@ struct RTheme {
    */
   r_string name;
   /*
+   * The unique identifier of the theme
+   */
+  r_string uuid;
+  /*
    * The internal style of imgui
    */
   ImGuiStyle imgui_style;
@@ -68,10 +72,22 @@ class RThemeManager {
   RResult<std::shared_ptr<RTheme>> create_theme(const std::string& name);
 
   /*
+   * Delete's a theme, returns false if the theme is the active theme or
+   * something went wrong
+   */
+  bool delete_theme(std::shared_ptr<RTheme> theme);
+
+  /*
    * Saves the current state of the theme manager in the theme configs
    *  NOTE: This can only be called between an initialized ImGui instance
    */
   bool save();
+
+  /*
+   * Saves the current state of the theme manager in the theme configs
+   *  NOTE: This can only be called between an initialized ImGui instance
+   */
+  bool save_theme(RTheme& theme);
 
   /*
    * Loads the themes from the theme configs
@@ -84,12 +100,6 @@ class RThemeManager {
    *  NOTE: This can only be called between an initialized ImGui instance
    */
   void set_active_theme(std::shared_ptr<RTheme> theme);
-
-  /*
-   * Load the default theme in a theme
-   *  NOTE: This can only be called between an initialized ImGui instance
-   */
-  void load_default_theme(RTheme& theme);
 
   /*
    * Get's the current active theme or nullptr if there isn't one

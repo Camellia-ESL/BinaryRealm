@@ -102,6 +102,9 @@ ImFontAtlasFlags, ImFontAtlas, ImFont)
 #include <stddef.h>  // ptrdiff_t, NULL
 #include <string.h>  // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
 
+#include <string>
+#include <vector>
+
 // Define attributes of all API symbols declarations (e.g. for DLL under
 // Windows) IMGUI_API is used for core imgui functions, IMGUI_IMPL_API is used
 // for the default backends files (imgui_impl_xxx.h) Using dear imgui via a
@@ -1349,6 +1352,8 @@ IMGUI_API bool InputText(const char* label, char* buf, size_t buf_size,
                          ImGuiInputTextFlags flags = 0,
                          ImGuiInputTextCallback callback = NULL,
                          void* user_data = NULL);
+IMGUI_API bool InputText(const char* label, std::string* str,
+                         ImGuiInputTextFlags flags = 0);
 IMGUI_API bool InputTextMultiline(const char* label, char* buf, size_t buf_size,
                                   const ImVec2& size = ImVec2(0, 0),
                                   ImGuiInputTextFlags flags = 0,
