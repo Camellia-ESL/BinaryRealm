@@ -105,10 +105,14 @@ class RAnimVal {
   /*
    * Set the next animation to play once this one is finished
    */
-  void concatenate(RAnimVal* next) { next_ = next; }
+  void concatenate(RAnimVal* next, float timeout = 0.0f) {
+    next_ = next;
+    next_timeout_ = timeout;
+  }
 
  private:
   RAnimVal* next_ = nullptr;
+  float next_timeout_ = 0.0f;
   float accumulator_ = 0.0f;
 
   float lerp_(float t);

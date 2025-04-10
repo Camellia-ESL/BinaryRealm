@@ -1545,6 +1545,11 @@ static void ImGui_ImplWin32_CreateWindow(ImGuiViewport* viewport) {
   viewport->PlatformHandle = viewport->PlatformHandleRaw = vd->Hwnd;
   ImGui_ImplWin32_EnableAlphaCompositing(vd->Hwnd);
 
+  // Bring the window to the foreground
+  if (SetForegroundWindow(vd->Hwnd)) {
+    ShowWindow(vd->Hwnd, SW_RESTORE);
+  }
+
   // Secondary viewports store their imgui context
   ::SetPropA(vd->Hwnd, "IMGUI_CONTEXT", ImGui::GetCurrentContext());
 }

@@ -42,7 +42,7 @@ std::unique_ptr<std::unordered_map<r_string, RConsoleCommand>> r_g_commands_;
  * Register a new command.
  */
 inline void r_register_command(const r_string& name,
-                                         const RConsoleCommand& cmd_info) {
+                               const RConsoleCommand& cmd_info) {
   (*r_g_commands_)[name] = cmd_info;
 }
 
@@ -69,9 +69,14 @@ void RConsoleView::on_spawn() {
 }
 
 void RConsoleView::render() {
-  begin_frame(ImGuiWindowFlags_NoScrollbar);
+  if (!begin_frame_(ImGuiWindowFlags_NoScrollbar)) {
+    end_frame_();
+    return;
+  }
 
   // Scrollable history region
+  ImGui::PushStyleColor(ImGuiCol_Border, {0.0f, 0.0f, 0.0f, 0.0f});
+  ImGui::PushStyleColor(ImGuiCol_BorderShadow, {0.0f, 0.0f, 0.0f, 0.0f});
   ImGui::BeginChild("ScrollingRegion",
                     ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), true);
   {
@@ -90,6 +95,9 @@ void RConsoleView::render() {
   // Command input
   ImGui::TextUnformatted(working_dir_path_.c_str());
   ImGui::SameLine();
+  float textHeight = ImGui::GetTextLineHeight();
+  ImGui::SetCursorPosY(ImGui::GetCursorPosY() +
+                       (textHeight - ImGui::GetFrameHeight()) * 0.5f);
   ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
   ImGui::PushStyleColor(ImGuiCol_FrameBg, {0.0f, 0.0f, 0.0f, 0.0f});
   if (ImGui::InputText("##input", cmd_input_buffer_,
@@ -101,9 +109,9 @@ void RConsoleView::render() {
     memset(cmd_input_buffer_, 0, sizeof(cmd_input_buffer_));
     ImGui::SetKeyboardFocusHere(-1);
   }
-  ImGui::PopStyleColor();
+  ImGui::PopStyleColor(3);
 
-  end_frame();
+  end_frame_();
 }
 
 void RConsoleView::process_command_async_(const r_string& command) {

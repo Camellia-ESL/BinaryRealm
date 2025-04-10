@@ -38,7 +38,7 @@ bool RFilesystemUtils::ensure_dir_exist(const std::filesystem::path& path) {
 }
 
 bool RFilesystemUtils::save_file(const std::filesystem::path& path,
-                                 const std::string& content) {
+                                 const r_string& content) {
   ensure_dir_exist(std::filesystem::path(path).parent_path().string());
   std::ofstream file(path);
   if (file) {
@@ -90,4 +90,13 @@ RResult<std::vector<std::filesystem::path>> RFilesystemUtils::get_files_in_dir(
 
   return RResult<std::vector<std::filesystem::path>>::create_ok(
       std::move(file_paths));
+}
+
+r_string RFilesystemUtils::rm_filename_extension(const r_string& filename) {
+  size_t last_dot = filename.find_last_of('.');
+  if (last_dot == std::string::npos) {
+    return filename;  // No extension found
+  }
+
+  return filename.substr(0, last_dot);
 }

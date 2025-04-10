@@ -9,6 +9,7 @@
 #include "../view/viewpool.h"
 #include "../view/views/console_view.h"
 #include "../view/views/settings_view.h"
+#include "../view/views/theme_selector_view.h"
 
 // Key watcher used to check if a key is pressed, down or up
 class KeyWatcher {
@@ -41,15 +42,21 @@ class KeyWatcher {
 };
 
 void r_process_keybinds() {
+  // TODO: Should be made portable and not forcly linked to WIN32 APIS
   ImGuiIO& io = ImGui::GetIO();
 
   // Setup watchers
   static KeyWatcher oem_5_key{VK_OEM_5};
+  static KeyWatcher right_shift_key{VK_RSHIFT};
 
-  // Open console window when shift + oem_5 is pressed
+  // Open console window when ctrl + oem_5 is pressed
   if (oem_5_key.is_pressed({VK_CONTROL}))
     RViewPool::get().spawn<RConsoleView>();
 
   // Open settings window when alt + oem_5 is pressed
   if (oem_5_key.is_pressed({VK_RMENU})) RViewPool::get().spawn<RSettingsView>();
+
+  // Open theme selector window when alt + right shift is pressed
+  if (right_shift_key.is_pressed({VK_RMENU}))
+    RViewPool::get().spawn<RThemeSelectorView>();
 }

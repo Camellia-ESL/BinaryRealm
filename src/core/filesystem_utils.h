@@ -27,7 +27,7 @@ class RFilesystemUtils {
    * should contain the file exist
    */
   static bool save_file(const std::filesystem::path& path,
-                        const std::string& content);
+                        const r_string& content);
 
   /*
    * Loads a file and return's the ifstream, it also ensure that the directory
@@ -48,4 +48,9 @@ class RFilesystemUtils {
    */
   static RResult<std::vector<std::filesystem::path>> get_files_in_dir(
       const std::filesystem::path& path);
+
+  /*
+   * Remove's the extension from a file name
+   */
+  static r_string rm_filename_extension(const r_string& filename);
 };

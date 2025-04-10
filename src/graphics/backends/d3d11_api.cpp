@@ -4,6 +4,7 @@
 #include "../../../external/imgui/imgui_impl_dx11.h"
 #include "../../../external/imgui/imgui_impl_win32.h"
 #include "../../../external/stb/stb_image.h"
+#include "../../config/config_manager.h"
 
 bool RD3D11Api::init(void* p_native_handle, int left, int top, int right,
                      int bottom, bool enable_viewports) {
@@ -112,7 +113,9 @@ void RD3D11Api::render() {
     ImGui::RenderPlatformWindowsDefault();
   }
 
-  p_swapchain_->Present(1, 0);
+  p_swapchain_->Present(
+      RConfigsManager::get().get_app_settings_mngr().get_app_settings().vsync,
+      0);
 }
 
 RResult<RpImageSRV> RD3D11Api::load_img_from_file(const r_string& path) {

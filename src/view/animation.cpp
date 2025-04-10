@@ -20,12 +20,23 @@ float RAnimVal::val() {
 }
 
 void RAnimVal::update(float delta) {
-  if (!is_playing) return;
-  if (elapsed >= duration) {
+  if (next_ != nullptr) {
+    if (!is_playing && (next_->play_count > 0 || next_->is_playing)) return;
+  } else if (!is_playing)
+    return;
+
+  // Check for the end of this animation
+  if (elapsed >= duration && is_playing) {
     play_count++;
     reset();
-    if (next_) next_->play();
   }
+
+  // Check for the end of the next animation
+  if (elapsed >= next_timeout_ && !is_playing && next_) {
+    next_->play();
+    reset();
+  }
+
   accumulator_ += delta;
 
   while (accumulator_ >= FIXED_DELTA) {

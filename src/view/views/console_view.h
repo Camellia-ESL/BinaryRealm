@@ -25,7 +25,7 @@ class RConsoleView : public RWindowView {
   constexpr const char* get_name() const override { return "Console View"; };
 
   /*
-   * [THREADSAFE] Safely add's an element to the cmds_history_
+   * Safely add's an element to the cmds_history_ [THREADSAFE]
    */
   void add_exec_res_to_history_(const r_string& command);
 
@@ -41,7 +41,7 @@ class RConsoleView : public RWindowView {
   r_string working_dir_path_;
 
   /*
-   * [THREADSAFE] Process a command asynchronously and thread safe
+   * Process a command asynchronously and thread safe [THREADSAFE]
    */
   void process_command_async_(const r_string& command);
   /*

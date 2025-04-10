@@ -16,15 +16,17 @@ bool RView::update() {
 
 void RView::init() { uuid_ = r_str_uuid(); }
 
-void RWindowView::opening_anim() {
+void RWindowView::opening_anim_(const ImVec2& size) {
   if (opening_anim_val_.is_playing) {
     float scale = opening_anim_val_.val();
     const auto& theme =
         RConfigsManager::get().get_theme_mngr().get_active_theme();
 
     // Set the size of the window
-    ImVec2 win_size = ImVec2(theme->viewport_default_size.x * scale,
-                             theme->viewport_default_size.y * scale);
+    const ImVec2& win_default_size =
+        size.x == 0.0f && size.y == 0.0f ? theme->viewport_default_size : size;
+    ImVec2 win_size =
+        ImVec2(win_default_size.x * scale, win_default_size.y * scale);
     ImGui::SetNextWindowSize(win_size);
 
     // Set the position to the center of the screen
@@ -42,7 +44,7 @@ void RWindowView::opening_anim() {
   }
 }
 
-void RWindowView::closing_anim() {
+void RWindowView::closing_anim_() {
   if (closing_anim_val_.is_playing) {
     float scale = closing_anim_val_.val();
     const auto& theme =
@@ -59,8 +61,8 @@ void RWindowView::closing_anim() {
   }
 }
 
-void RWindowView::begin_frame(ImGuiWindowFlags flags) {
-  opening_anim();
+bool RWindowView::begin_frame_(ImGuiWindowFlags flags, const ImVec2& size) {
+  opening_anim_(size);
   ImGui::Begin(r_str_to_cstr(get_name() + "##" + uuid_), &open_,
                ImGuiWindowFlags_NoTitleBar | flags);
 
@@ -72,10 +74,12 @@ void RWindowView::begin_frame(ImGuiWindowFlags flags) {
                                        closing_anim_win_start_size_.y / 2.0f};
   }
 
-  closing_anim();
+  closing_anim_();
+
+  return !opening_anim_val_.is_playing && !closing_anim_val_.is_playing;
 }
 
-void RWindowView::end_frame() { ImGui::End(); }
+void RWindowView::end_frame_() { ImGui::End(); }
 
 void RWindowView::on_spawn() {
   RView::on_spawn();
@@ -91,4 +95,64 @@ bool RWindowView::update() {
   closing_anim_val_.update(ImGui::GetIO().DeltaTime);
 
   return RView::update();
+}
+
+void RNotificationView::on_spawn() {
+  RView::on_spawn();
+  opening_anim_val_.concatenate(&closing_anim_val_, 3.0f);
+  opening_anim_val_.play();
+}
+
+bool RNotificationView::update() {
+  // Handle closing animation + view destruction
+  if (closing_anim_val_.play_count > 0) open_ = false;
+
+  // Update the opening animation of the view
+  opening_anim_val_.update(ImGui::GetIO().DeltaTime);
+  closing_anim_val_.update(ImGui::GetIO().DeltaTime);
+
+  return RView::update();
+}
+
+void RNotificationView::render() {
+  opening_anim_();
+  closing_anim_();
+  ImGui::PushStyleColor(ImGuiCol_Border, {0.34, 0.34, 0.34, 1.0f});
+  ImGui::Begin(r_str_to_cstr("##" + uuid_), &open_,
+               ImGuiWindowFlags_NoTitleBar);
+  ImGui::PopStyleColor();
+  ImGui::TextUnformatted(title.c_str());
+  ImGui::TextUnformatted(description.c_str());
+  ImGui::End();
+}
+
+void RNotificationView::opening_anim_() { slide_from_right_anim_(); }
+
+void RNotificationView::closing_anim_() { slide_from_right_anim_(); }
+
+void RNotificationView::slide_from_right_anim_() {
+  if (!opening_anim_val_.is_playing && !closing_anim_val_.is_playing) return;
+
+  float anim_multiplier = opening_anim_val_.is_playing
+                              ? opening_anim_val_.val()
+                              : closing_anim_val_.val();
+  const auto& theme =
+      RConfigsManager::get().get_theme_mngr().get_active_theme();
+
+  ImGui::SetNextWindowSize(theme->notification_size);
+
+  // Set the position to the bottom right of the screen
+  auto& main_monitor_rect = RApp::get().get_main_screen().get_rect();
+  ImVec2 screen_size = {
+      (float)main_monitor_rect.right - main_monitor_rect.left,
+      (float)main_monitor_rect.bottom - main_monitor_rect.top};
+
+  ImGui::SetNextWindowPos(
+      {screen_size.x -
+           ((theme->notification_size.x + HORIZONTAL_GAP_) * anim_multiplier),
+       screen_size.y - theme->notification_size.y - VERTICAL_GAP_});
+
+  // Set the alpha
+  ImGui::SetNextWindowBgAlpha(ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w *
+                              anim_multiplier);
 }

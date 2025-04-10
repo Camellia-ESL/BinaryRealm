@@ -4,5 +4,5 @@
  */
 namespace RStaticConfigs {
 constexpr const char* APP_NAME = "BinaryRealm";
-constexpr const char* APP_VERSION = "V.0.0.1 - Beta";
+constexpr const char* APP_VERSION = "V.0.0.4 - Beta";
 }  // namespace RStaticConfigs

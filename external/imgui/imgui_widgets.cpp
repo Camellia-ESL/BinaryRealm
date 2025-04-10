@@ -964,9 +964,10 @@ bool ImGui::ToggleButton(const char* label, bool* v) {
     t = *v ? (t_anim) : (1.0f - t_anim);
   }
 
-  ImU32 col_bg = GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                             : hovered         ? ImGuiCol_FrameBgHovered
-                                               : ImGuiCol_FrameBg);
+  ImU32 col_bg =
+      GetColorU32(((held && hovered) || *v) ? ImGuiCol_ToggleButtonBgActive
+                  : hovered                 ? ImGuiCol_ToggleButtonBgHovered
+                                            : ImGuiCol_ToggleButtonBg);
 
   const ImRect frame_bb(pos, pos + ImVec2(width, height));
 
@@ -978,7 +979,7 @@ bool ImGui::ToggleButton(const char* label, bool* v) {
   RenderText(label_pos, label);
   window->DrawList->AddCircleFilled(
       ImVec2(pos.x + radius + t * (width - radius * 2.0f), pos.y + radius),
-      radius - 1.5f, ImGui::GetColorU32(ImGuiCol_CheckMark), 36);
+      radius - 1.5f, ImGui::GetColorU32(ImGuiCol_ToggleButtonGrip), 36);
 
   return pressed;
 }

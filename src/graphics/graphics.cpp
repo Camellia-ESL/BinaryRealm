@@ -11,6 +11,9 @@ void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   ImGuiIO& io = ImGui::GetIO();
   // TODO: Remove imgui navigation keybinds
 
+  // Disable INI file serializing
+  io.IniFilename = NULL;
+
   // Required to detach imgui window viewports from the app
   static bool test = false;
   if (enable_viewports) io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;

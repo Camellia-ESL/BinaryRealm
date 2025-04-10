@@ -41,8 +41,14 @@ class RImage {
    */
   const r_string& get_file_path() const { return file_path_; }
 
+  /*
+   * Get's the image name based on the file path
+   */
+  const r_string& get_name() const { return file_name_; }
+
  private:
   r_string file_path_;
+  r_string file_name_;
   RpImageSRV host_srv_;
   // screen_monitor_index - RpImageSRV keypair
   std::map<int, RpImageSRV> screen_srvs_;

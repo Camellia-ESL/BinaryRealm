@@ -1,8 +1,8 @@
 /*
  *The main header containing themes logic
  *
- *  NOTE: Themes are loaded only for the first Screen instance as it is the
- * host monitor used as platform for the viewports (basically every window
+ *  NOTE: Themes are loaded only for the first host viewport instance as it is
+ * the host used as platform for the viewports (basically every window
  * rendered / imgui component except for few exceptions like the desktop
  * background manager)
  */
@@ -40,6 +40,10 @@ struct RTheme {
    * Viewports default size when opened
    */
   ImVec2 viewport_default_size = {800, 600};
+  /*
+   * Notifications size when opened
+   */
+  ImVec2 notification_size = {250, 80};
   /*
    * Default background name
    */
@@ -111,6 +115,13 @@ class RThemeManager {
    */
   const std::vector<std::shared_ptr<RTheme>>& get_themes() const {
     return themes_;
+  }
+
+  /*
+   * Get's the current available fonts
+   */
+  const std::vector<std::shared_ptr<RFont>>& get_fonts() const {
+    return fonts_;
   }
 
  private:

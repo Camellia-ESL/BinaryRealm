@@ -3704,6 +3704,10 @@ enum ImGuiCol_ {
                                    // CTRL+TAB window list, when active
   ImGuiCol_ModalWindowDimBg,  // Darken/colorize entire screen behind a modal
                               // window, when one is active
+  ImGuiCol_ToggleButtonGrip,
+  ImGuiCol_ToggleButtonBg,
+  ImGuiCol_ToggleButtonBgHovered,
+  ImGuiCol_ToggleButtonBgActive,
   ImGuiCol_COUNT,
 
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS

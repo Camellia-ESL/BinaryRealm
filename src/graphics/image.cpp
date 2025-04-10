@@ -1,5 +1,6 @@
 #include "image.h"
 
+#include <filesystem>
 #include <memory>
 
 #include "../app/app.h"
@@ -32,6 +33,7 @@ RResult<std::shared_ptr<RImage>> RImage::new_from_file(const r_string& path) {
 
   // Set image info
   img_res_buff->file_path_ = path;
+  img_res_buff->file_name_ = std::filesystem::path(path).filename().string();
 
   return RResult<std::shared_ptr<RImage>>::create_ok(img_res_buff);
 }
