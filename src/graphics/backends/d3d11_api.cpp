@@ -135,6 +135,7 @@ RResult<RpImageSRV> RD3D11Api::load_img_from_file(const r_string& path) {
   tex_desc.Usage = D3D11_USAGE_DEFAULT;
   tex_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
   tex_desc.CPUAccessFlags = 0;
+  tex_desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
 
   // Create texture
   D3D11_SUBRESOURCE_DATA init_data = {};

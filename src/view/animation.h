@@ -6,6 +6,8 @@
 
 #include <math.h>
 
+#include <chrono>
+
 /*
  * The interpolation type of animation
  */
@@ -21,10 +23,20 @@ enum class RAnimInterpolationType {
  */
 class RAnimVal {
  public:
+  using RClock = std::chrono::high_resolution_clock;
+  using RTimePoint = std::chrono::time_point<RClock>;
+
   /*
-   * The fixed delta time for the animation
+   * Higher values generates animations refreshed more times per second
+   * (visually it appears smoother)
    */
-  static constexpr const float FIXED_DELTA = 1.0f / 144.0f;
+  static constexpr const float TIME_SCALE_FACTOR = 4.0f;
+
+  /*
+   * The animation time step per second
+   */
+  static constexpr const float FIXED_TIME_STEP =
+      1.0f / (60.0f * TIME_SCALE_FACTOR);
 
   /*
    * Total animation time
@@ -61,6 +73,11 @@ class RAnimVal {
    */
   int play_count;
 
+  /*
+   * The start time point
+   */
+  RTimePoint start_t_point;
+
   RAnimVal(float start, float end, float time,
            RAnimInterpolationType interpType, float bp1 = 0.25f,
            float bp2 = 0.5f, float bp3 = 0.75f)
@@ -82,12 +99,15 @@ class RAnimVal {
   /*
    * Update's the whole animation state
    */
-  void update(float delta);
+  void update();
 
   /*
    * Play's the animation
    */
-  void play() { is_playing = true; }
+  void play() {
+    start_t_point = RClock::now();
+    is_playing = true;
+  }
 
   /*
    * Stop's the animation
@@ -109,6 +129,12 @@ class RAnimVal {
     next_ = next;
     next_timeout_ = timeout;
   }
+
+  /*
+   * Get's the duration time scaled (useful to animate properly without relying
+   * on a wrong scaled duration frame per second)
+   */
+  float duration_time_scaled() { return duration / TIME_SCALE_FACTOR; }
 
  private:
   RAnimVal* next_ = nullptr;

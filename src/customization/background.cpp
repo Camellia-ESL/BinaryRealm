@@ -18,8 +18,8 @@ void RDesktopBackgroundManager::update() {
     bg_change_anim_val_rot_1_.play();
   }
 
-  bg_change_anim_val_rot_1_.update(ImGui::GetIO().DeltaTime);
-  bg_change_anim_val_rot_2_.update(ImGui::GetIO().DeltaTime);
+  bg_change_anim_val_rot_1_.update();
+  bg_change_anim_val_rot_2_.update();
 }
 
 void RDesktopBackgroundManager::render(RScreen& screen) {

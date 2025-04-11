@@ -91,8 +91,8 @@ bool RWindowView::update() {
   if (closing_anim_val_.play_count > 0) open_ = false;
 
   // Update the opening animation of the view
-  opening_anim_val_.update(ImGui::GetIO().DeltaTime);
-  closing_anim_val_.update(ImGui::GetIO().DeltaTime);
+  opening_anim_val_.update();
+  closing_anim_val_.update();
 
   return RView::update();
 }
@@ -108,8 +108,8 @@ bool RNotificationView::update() {
   if (closing_anim_val_.play_count > 0) open_ = false;
 
   // Update the opening animation of the view
-  opening_anim_val_.update(ImGui::GetIO().DeltaTime);
-  closing_anim_val_.update(ImGui::GetIO().DeltaTime);
+  opening_anim_val_.update();
+  closing_anim_val_.update();
 
   return RView::update();
 }

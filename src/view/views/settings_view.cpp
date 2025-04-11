@@ -10,7 +10,7 @@ void RSettingsView::render() {
   }
 
   // Update's animation values
-  thm_editor_in_anim_val_.update(ImGui::GetIO().DeltaTime);
+  thm_editor_in_anim_val_.update();
 
   ImGui::Text("Settings");
 

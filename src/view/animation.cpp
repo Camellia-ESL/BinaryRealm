@@ -2,7 +2,7 @@
 
 float RAnimVal::val() {
   if (!is_playing) return end_val;
-  float t = elapsed / duration;
+  float t = elapsed / duration_time_scaled();
   t = t > 1.0f ? 1.0f : t;
 
   switch (interp_type) {
@@ -19,29 +19,31 @@ float RAnimVal::val() {
   }
 }
 
-void RAnimVal::update(float delta) {
+void RAnimVal::update() {
   if (next_ != nullptr) {
     if (!is_playing && (next_->play_count > 0 || next_->is_playing)) return;
   } else if (!is_playing)
     return;
 
-  // Check for the end of this animation
-  if (elapsed >= duration && is_playing) {
-    play_count++;
-    reset();
-  }
+  // Accumulate the real time into our accumulator
+  accumulator_ = (RClock::now() - start_t_point).count();
 
-  // Check for the end of the next animation
-  if (elapsed >= next_timeout_ && !is_playing && next_) {
-    next_->play();
-    reset();
-  }
+  // Update in fixed time steps
+  if (accumulator_ >= FIXED_TIME_STEP) {
+    elapsed += FIXED_TIME_STEP;
+    accumulator_ = 0.0f;
 
-  accumulator_ += delta;
+    // Check for the end of this animation
+    if (elapsed >= duration_time_scaled() && is_playing) {
+      play_count++;
+      reset();
+    }
 
-  while (accumulator_ >= FIXED_DELTA) {
-    elapsed += FIXED_DELTA;
-    accumulator_ -= FIXED_DELTA;
+    // Check for the end of the next animation
+    if (elapsed >= next_timeout_ && !is_playing && next_) {
+      next_->play();
+      reset();
+    }
   }
 }
 
