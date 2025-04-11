@@ -46,10 +46,14 @@ class RIGraphicsApi {
   virtual void render() = 0;
 
   /*
-   * Load's an image from file then returns the texture resource ptr (ex. d3d11)
-   * returns D3D11ShaderResourceView*) ready to be passed to ImGui::Image()
+   * Load's an image from file then returns the shared handle that can be used
+   * to fetch the SRV to pass to ImGui
    */
-  virtual RResult<RpImageSRV> load_img_from_file(const r_string& path) = 0;
+  virtual RResult<RpSharedImageHandle> load_img_from_file(
+      const r_string& path) = 0;
+
+  virtual RResult<RpImageSRV> get_img_from_shared_handle(
+      RpSharedImageHandle handle) = 0;
 
   /*
    * Get's the imgui context for this instance

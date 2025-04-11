@@ -150,6 +150,19 @@ RResult<RpImageSRV> RD3D11Api::load_img_from_file(const r_string& path) {
   if (FAILED(hr))
     return RResult<RpImageSRV>::create_err("Failed to create texture");
 
+  // Get shared handle
+  HANDLE shared_handle = nullptr;
+  IDXGIResource* dxgi_resource = nullptr;
+  hr = texture->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgi_resource);
+
+  if (SUCCEEDED(hr)) {
+    dxgi_resource->GetSharedHandle(&shared_handle);
+    dxgi_resource->Release();
+  } else {
+    texture->Release();
+    return RResult<RpImageSRV>::create_err("Failed to query IDXGIResource");
+  }
+
   // Create shader resource view
   ID3D11ShaderResourceView* texture_srv = nullptr;
   hr = p_d3d_device_->CreateShaderResourceView(texture, nullptr, &texture_srv);
@@ -161,5 +174,23 @@ RResult<RpImageSRV> RD3D11Api::load_img_from_file(const r_string& path) {
     return RResult<RpImageSRV>::create_err(
         "Failed to create shader resource view");
 
-  return RResult<RpImageSRV>::create_ok((RpImageSRV)texture_srv);
+  return RResult<RpImageSRV>::create_ok((RpImageSRV)shared_handle);
+}
+
+RResult<RpImageSRV> RD3D11Api::get_img_from_shared_handle(
+    RpSharedImageHandle handle) {
+  ID3D11Resource* shared_resource = nullptr;
+  HRESULT hr = p_d3d_device_->OpenSharedResource(
+      handle, __uuidof(ID3D11Resource), (void**)&shared_resource);
+
+  if (SUCCEEDED(hr)) {
+    ID3D11ShaderResourceView* shared_srv = nullptr;
+    p_d3d_device_->CreateShaderResourceView(shared_resource, nullptr,
+                                            &shared_srv);
+
+    return RResult<RpImageSRV>::create_ok((RpImageSRV)shared_srv);
+    shared_resource->Release();
+  }
+  return RResult<RpImageSRV>::create_err(
+      "Failed to create shader resource view");
 }

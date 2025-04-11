@@ -6,6 +6,11 @@
 #include "../core/containers.h"
 
 /*
+ * Represent's a shared handle that can be used to fetch an RpImageSRV
+ */
+typedef void* RpSharedImageHandle;
+
+/*
  * The image resource view abstracted (ex. D3D11ShaderResourceView* for d3d11)
  * it can be passed to ImGui to render images
  */
@@ -50,6 +55,7 @@ class RImage {
   r_string file_path_;
   r_string file_name_;
   RpImageSRV host_srv_;
+  RpSharedImageHandle shared_handle_;
   // screen_monitor_index - RpImageSRV keypair
   std::map<int, RpImageSRV> screen_srvs_;
 };

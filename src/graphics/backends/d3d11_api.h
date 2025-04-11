@@ -3,23 +3,23 @@
 
 #include "../graphics.h"
 
-// D3D11 graphics api abstraction
+/*
+ * D3D11 graphics api abstraction
+ */
 class RD3D11Api : public RIGraphicsApi {
  public:
   RD3D11Api() = default;
   ~RD3D11Api() override { destroy(); }
 
-  // Init d3d11 instance
   bool init(void* p_native_handle, int left, int top, int right, int bottom,
             bool enable_viewports) override;
-  // Destroy the d3d11 instance
   void destroy() override;
-  // Start's a new frame
   void begin_render() override;
-  // End's a frame, render's and present
   void render() override;
-  // Load's a d3d11 image resource shader view from file
-  RResult<RpImageSRV> load_img_from_file(const r_string& path) override;
+  RResult<RpSharedImageHandle> load_img_from_file(
+      const r_string& path) override;
+  RResult<RpImageSRV> get_img_from_shared_handle(
+      RpSharedImageHandle handle) override;
 
  private:
   ID3D11Device* p_d3d_device_ = nullptr;
