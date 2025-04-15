@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "../core/time.h"
 #include "../graphics/graphics.h"
 #include "screen.h"
 
@@ -46,9 +47,22 @@ class RApp {
     return get_host_win().get_gfx().get_imgui_ctx();
   }
 
+  /*
+   * Get's the host framerate limiter
+   */
+  RFrameRateLimiter& get_host_fps_limiter() { return host_render_fps_limiter_; }
+
+  /*
+   * Get's the background framerate limiter
+   */
+  RFrameRateLimiter& get_bg_fps_limiter() { return bg_render_fps_limiter_; }
+
  private:
   // The host window containing the viewports
   std::shared_ptr<RIWindow> host_window_;
   // All the screens
   std::vector<std::shared_ptr<RScreen>> screens_;
+  // Framerate limiters
+  RFrameRateLimiter host_render_fps_limiter_;
+  RFrameRateLimiter bg_render_fps_limiter_;
 };

@@ -60,6 +60,13 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
   r_register_console_cmds();
 
   // Main application loop
+  host_render_fps_limiter_ = RFrameRateLimiter{RConfigsManager::get()
+                                                   .get_app_settings_mngr()
+                                                   .get_app_settings()
+                                                   .view_fps_limit};
+
+  bg_render_fps_limiter_ = RFrameRateLimiter{240.0f};
+
   bool is_running = true;
   while (is_running) {
     // Process messages from windows, process keybinds and check if app should
@@ -70,20 +77,24 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
     }
 
     // Render's host window content (mainly viewports)
-    host_window_->get_gfx().begin_render();
-    {
-      RViewPool::get().render();
-      RConfigsManager::get().get_desktop_bg_mngr().update();
+    if (host_render_fps_limiter_.should_update()) {
+      host_window_->get_gfx().begin_render();
+      {
+        RViewPool::get().render();
+        RConfigsManager::get().get_desktop_bg_mngr().update();
+      }
+      host_window_->get_gfx().render();
     }
-    host_window_->get_gfx().render();
 
     // Render's screen content
-    for (auto& screen : screens_) {
-      screen->get_bg_window().get_gfx().begin_render();
+    if (bg_render_fps_limiter_.should_update()) {
+      for (auto& screen : screens_) {
+        screen->get_bg_window().get_gfx().begin_render();
 
-      RConfigsManager::get().get_desktop_bg_mngr().render(*screen);
+        RConfigsManager::get().get_desktop_bg_mngr().render(*screen);
 
-      screen->get_bg_window().get_gfx().render();
+        screen->get_bg_window().get_gfx().render();
+      }
     }
   }
 }

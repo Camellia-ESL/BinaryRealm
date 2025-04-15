@@ -36,12 +36,10 @@ bool RWin32Api::init(RGraphicsApiType gfx_api_type, int left, int top,
          L"BinaryRealm",
          nullptr};
   ::RegisterClassExW(&wc_);
-  hwnd_ =
-      ::CreateWindowExW(WS_EX_LAYERED | WS_EX_TOOLWINDOW, wc_.lpszClassName,
-                        L"BinaryRealm", WS_POPUP, left, top, right - left,
-                        bottom - top, nullptr, nullptr, wc_.hInstance, nullptr);
+  hwnd_ = ::CreateWindowExW(WS_EX_TOOLWINDOW, wc_.lpszClassName, L"BinaryRealm",
+                            WS_POPUP, left, top, right - left, bottom - top,
+                            nullptr, nullptr, wc_.hInstance, nullptr);
 
-  SetLayeredWindowAttributes(hwnd_, 0, 255, LWA_ALPHA);
   set_window_on_bottom(hwnd_);
 
   ::ShowWindow(hwnd_, SW_SHOWDEFAULT);

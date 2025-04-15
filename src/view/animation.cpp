@@ -1,7 +1,7 @@
 #include "animation.h"
 
 float RAnimVal::val() {
-  if (!is_playing) return end_val;
+  if (state_ >= RAnimValState::ON_END_CALLBACK_PASS) return end_val;
   float t = elapsed / duration_time_scaled();
   t = t > 1.0f ? 1.0f : t;
 
@@ -20,13 +20,11 @@ float RAnimVal::val() {
 }
 
 void RAnimVal::update() {
-  if (next_ != nullptr) {
-    if (!is_playing && (next_->play_count > 0 || next_->is_playing)) return;
-  } else if (!is_playing)
-    return;
+  if (state_ == RAnimValState::COMPLETED) return;
 
   // Accumulate the real time into our accumulator
-  accumulator_ = (RClock::now() - start_t_point).count();
+  if (state_ != RAnimValState::STOPPED)
+    accumulator_ = (RClock::now() - start_t_point).count();
 
   // Update in fixed time steps
   if (accumulator_ >= FIXED_TIME_STEP) {
@@ -34,15 +32,34 @@ void RAnimVal::update() {
     accumulator_ = 0.0f;
 
     // Check for the end of this animation
-    if (elapsed >= duration_time_scaled() && is_playing) {
+    if (state_ == RAnimValState::PLAYING && elapsed >= duration_time_scaled()) {
       play_count++;
-      reset();
+      elapsed = 0.0f;
+      if (on_anim_end_)
+        state_ = RAnimValState::ON_END_CALLBACK_PASS;
+      else if (next_)
+        state_ = RAnimValState::ON_NEXT_ANIM_PASS;
+      else
+        state_ = RAnimValState::COMPLETED;
     }
 
-    // Check for the end of the next animation
-    if (elapsed >= next_timeout_ && !is_playing && next_) {
+    // Check to play on anim end callback
+    if (state_ == RAnimValState::ON_END_CALLBACK_PASS &&
+        elapsed >= on_anim_end_timeout_time_scaled()) {
+      elapsed = 0.0f;
+      on_anim_end_();
+      if (next_)
+        state_ = RAnimValState::ON_NEXT_ANIM_PASS;
+      else
+        state_ = RAnimValState::COMPLETED;
+    }
+
+    // Check for the start of the next animation
+    if (state_ == RAnimValState::ON_NEXT_ANIM_PASS &&
+        elapsed >= next_timeout_) {
       next_->play();
-      reset();
+      elapsed = 0.0f;
+      state_ = RAnimValState::COMPLETED;
     }
   }
 }

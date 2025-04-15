@@ -1,6 +1,7 @@
 #include "settings_view.h"
 
 #include "../../../external/imgui/imgui.h"
+#include "../../app/app.h"
 #include "../../core/filesystem_utils.h"
 
 void RSettingsView::render() {
@@ -46,6 +47,12 @@ void RSettingsView::render_general_settings_() {
   auto& app_settings_mngr = RConfigsManager::get().get_app_settings_mngr();
   auto& app_settings = app_settings_mngr.get_app_settings();
   ImGui::ToggleButton("Vsync", &app_settings.vsync);
+
+  ImGui::PushItemWidth(ImGui::GetFontSize() * 8);
+  ImGui::DragFloat("View FPS Limit", &app_settings.view_fps_limit, 1.0f, 1.0f,
+                   520.0f, "%.0f");
+  RApp::get().get_host_fps_limiter().set_framerate(app_settings.view_fps_limit);
+  ImGui::PopItemWidth();
 }
 
 void RSettingsView::render_background_settings_() {

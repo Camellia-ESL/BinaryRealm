@@ -2,6 +2,7 @@
 
 #include "../app/app.h"
 #include "../config/config_manager.h"
+#include "animation.h"
 #include "viewpool.h"
 
 bool RView::update() {
@@ -17,7 +18,7 @@ bool RView::update() {
 void RView::init() { uuid_ = r_str_uuid(); }
 
 void RWindowView::opening_anim_(const ImVec2& size) {
-  if (opening_anim_val_.is_playing) {
+  if (opening_anim_val_.get_state() == RAnimValState::PLAYING) {
     float scale = opening_anim_val_.val();
     const auto& theme =
         RConfigsManager::get().get_theme_mngr().get_active_theme();
@@ -45,7 +46,7 @@ void RWindowView::opening_anim_(const ImVec2& size) {
 }
 
 void RWindowView::closing_anim_() {
-  if (closing_anim_val_.is_playing) {
+  if (closing_anim_val_.get_state() == RAnimValState::PLAYING) {
     float scale = closing_anim_val_.val();
     const auto& theme =
         RConfigsManager::get().get_theme_mngr().get_active_theme();
@@ -76,7 +77,8 @@ bool RWindowView::begin_frame_(ImGuiWindowFlags flags, const ImVec2& size) {
 
   closing_anim_();
 
-  return !opening_anim_val_.is_playing && !closing_anim_val_.is_playing;
+  return opening_anim_val_.get_state() == RAnimValState::COMPLETED &&
+         closing_anim_val_.get_state() == RAnimValState::COMPLETED;
 }
 
 void RWindowView::end_frame_() { ImGui::End(); }
@@ -99,7 +101,7 @@ bool RWindowView::update() {
 
 void RNotificationView::on_spawn() {
   RView::on_spawn();
-  opening_anim_val_.concatenate(&closing_anim_val_, 3.0f);
+  opening_anim_val_.concatenate(&closing_anim_val_, 5.0f);
   opening_anim_val_.play();
 }
 
@@ -131,11 +133,10 @@ void RNotificationView::opening_anim_() { slide_from_right_anim_(); }
 void RNotificationView::closing_anim_() { slide_from_right_anim_(); }
 
 void RNotificationView::slide_from_right_anim_() {
-  if (!opening_anim_val_.is_playing && !closing_anim_val_.is_playing) return;
-
-  float anim_multiplier = opening_anim_val_.is_playing
-                              ? opening_anim_val_.val()
-                              : closing_anim_val_.val();
+  float anim_multiplier =
+      opening_anim_val_.get_state() != RAnimValState::COMPLETED
+          ? opening_anim_val_.val()
+          : closing_anim_val_.val();
   const auto& theme =
       RConfigsManager::get().get_theme_mngr().get_active_theme();
 

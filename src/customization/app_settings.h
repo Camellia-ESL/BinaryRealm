@@ -7,6 +7,11 @@ struct RAppSettings {
    * Wheter if the app VSync is on
    */
   bool vsync = true;
+
+  /*
+   * The framerate limit for views
+   */
+  float view_fps_limit = 240.0f;
 };
 
 /*
