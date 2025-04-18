@@ -6,6 +6,7 @@
 #include "../../external/imgui/imgui.h"
 #include "../app/app.h"
 #include "../config/config_manager.h"
+#include "../config/static_configs.h"
 
 const r_string RDesktopBackgroundManager::get_bg_images_dir_path() {
   return RConfigsManager::get().get_config_dir_path() + "\\backgrounds\\images";
@@ -17,9 +18,13 @@ void RDesktopBackgroundManager::update() {
     prev_bg = cur_bg_;
     bg_change_anim_val_rot_1_.reset();
     bg_change_anim_val_rot_2_.reset();
-    RApp::get().get_bg_fps_limiter().set_framerate(240.0f);
+    RApp::get().get_bg_fps_limiter().set_framerate(
+        RStaticConfigs::APP_BACKGROUND_MAX_FPS);
     bg_change_anim_val_rot_2_.set_on_anim_end_callback(
-        [&]() -> void { RApp::get().get_bg_fps_limiter().set_framerate(1.0f); },
+        [&]() -> void {
+          RApp::get().get_bg_fps_limiter().set_framerate(
+              RStaticConfigs::APP_BACKGROUND_LOW_USAGE_FPS);
+        },
         0.5f);
     bg_change_anim_val_rot_1_.concatenate(&bg_change_anim_val_rot_2_);
     bg_change_anim_val_rot_1_.play();

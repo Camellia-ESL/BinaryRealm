@@ -145,13 +145,13 @@ class RNotificationView : public RView {
    * The opening animated value
    */
   RAnimVal opening_anim_val_{
-      0.0f, 1.0f, 1.5f, RAnimInterpolationType::CUBIC_BEZIER, 0.34f, 1.34f};
+      0.0f, 1.0f, 0.8f, RAnimInterpolationType::CUBIC_BEZIER, 0.34f, 1.34f};
 
   /*
    * The closing animated value
    */
   RAnimVal closing_anim_val_{
-      1.0f, 0.0f, 1.2f, RAnimInterpolationType::CUBIC_BEZIER, 1.34f, 0.34f};
+      1.0f, 0.0f, 0.6f, RAnimInterpolationType::CUBIC_BEZIER, 1.34f, 0.34f};
 
   /*
    * The opening animation of the view

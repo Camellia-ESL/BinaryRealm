@@ -2,7 +2,7 @@
 
 float RAnimVal::val() {
   if (state_ >= RAnimValState::ON_END_CALLBACK_PASS) return end_val;
-  float t = elapsed / duration_time_scaled();
+  float t = elapsed / duration;
   t = t > 1.0f ? 1.0f : t;
 
   switch (interp_type) {
@@ -19,48 +19,49 @@ float RAnimVal::val() {
   }
 }
 
+void RAnimVal::play() {
+  start_t_point = RClock::now();
+  state_ = RAnimValState::PLAYING;
+}
+
+void RAnimVal::stop() { state_ = RAnimValState::STOPPED; }
+
+void RAnimVal::resume() { state_ = RAnimValState::PLAYING; }
+
+void RAnimVal::reset() {
+  state_ = RAnimValState::COMPLETED;
+  elapsed = 0.0f;
+}
+
 void RAnimVal::update() {
   if (state_ == RAnimValState::COMPLETED) return;
 
-  // Accumulate the real time into our accumulator
-  if (state_ != RAnimValState::STOPPED)
-    accumulator_ = (RClock::now() - start_t_point).count();
+  auto now = RClock::now();
+  std::chrono::duration<float> delta = now - start_t_point;
+  start_t_point = now;
 
-  // Update in fixed time steps
-  if (accumulator_ >= FIXED_TIME_STEP) {
-    elapsed += FIXED_TIME_STEP;
-    accumulator_ = 0.0f;
+  elapsed += delta.count();
 
-    // Check for the end of this animation
-    if (state_ == RAnimValState::PLAYING && elapsed >= duration_time_scaled()) {
-      play_count++;
-      elapsed = 0.0f;
-      if (on_anim_end_)
-        state_ = RAnimValState::ON_END_CALLBACK_PASS;
-      else if (next_)
-        state_ = RAnimValState::ON_NEXT_ANIM_PASS;
-      else
-        state_ = RAnimValState::COMPLETED;
-    }
+  if (state_ == RAnimValState::PLAYING && elapsed >= duration) {
+    play_count++;
+    elapsed = 0.0f;
+    state_ = (on_anim_end_) ? RAnimValState::ON_END_CALLBACK_PASS
+                            : (next_ ? RAnimValState::ON_NEXT_ANIM_PASS
+                                     : RAnimValState::COMPLETED);
+  }
 
-    // Check to play on anim end callback
-    if (state_ == RAnimValState::ON_END_CALLBACK_PASS &&
-        elapsed >= on_anim_end_timeout_time_scaled()) {
-      elapsed = 0.0f;
-      on_anim_end_();
-      if (next_)
-        state_ = RAnimValState::ON_NEXT_ANIM_PASS;
-      else
-        state_ = RAnimValState::COMPLETED;
-    }
+  if (state_ == RAnimValState::ON_END_CALLBACK_PASS &&
+      elapsed >= on_anim_end_timeout_) {
+    elapsed = 0.0f;
+    on_anim_end_();
+    state_ =
+        next_ ? RAnimValState::ON_NEXT_ANIM_PASS : RAnimValState::COMPLETED;
+  }
 
-    // Check for the start of the next animation
-    if (state_ == RAnimValState::ON_NEXT_ANIM_PASS &&
-        elapsed >= next_timeout_) {
-      next_->play();
-      elapsed = 0.0f;
-      state_ = RAnimValState::COMPLETED;
-    }
+  if (state_ == RAnimValState::ON_NEXT_ANIM_PASS && elapsed >= next_timeout_) {
+    elapsed = 0.0f;
+    next_->play();
+    state_ = RAnimValState::COMPLETED;
   }
 }
 

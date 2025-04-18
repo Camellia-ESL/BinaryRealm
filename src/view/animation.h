@@ -1,10 +1,5 @@
 /*
  * Contains animation logic for views.
- *
- * NOTE: It's important to notice that when working with animation logic u need
- * to remember to properly time scale time values as they are not binded to a
- * fixed framerate and they need to be properly time scaled. (ex. you can watch
- * RAnimVal::duration_time_scaled)
  */
 
 #pragma once
@@ -40,20 +35,8 @@ enum class RAnimValState {
  */
 class RAnimVal {
  public:
-  using RClock = std::chrono::high_resolution_clock;
-  using RTimePoint = std::chrono::time_point<RClock>;
-
-  /*
-   * Higher values generates animations refreshed more times per second
-   * (visually it appears smoother)
-   */
-  static constexpr const float TIME_SCALE_FACTOR = 4.0f;
-
-  /*
-   * The animation time step per second
-   */
-  static constexpr const float FIXED_TIME_STEP =
-      1.0f / (60.0f * TIME_SCALE_FACTOR);
+  using RClock = std::chrono::steady_clock;
+  using RTimePoint = RClock::time_point;
 
   /*
    * Total animation time
@@ -91,13 +74,13 @@ class RAnimVal {
   RTimePoint start_t_point;
 
   RAnimVal(float start, float end, float time,
-           RAnimInterpolationType interpType, float bp1 = 0.25f,
-           float bp2 = 0.5f, float bp3 = 0.75f)
+           RAnimInterpolationType interpolation, float bp1 = 0.25f,
+           float bp2 = 0.5f, float bp3 = 0.75f, bool uncapped_fps = true)
       : duration(time),
         elapsed(0.0f),
         start_val(start),
         end_val(end),
-        interp_type(interpType),
+        interp_type(interpolation),
         bezier_p1(bp1),
         bezier_p2(bp2),
         play_count(0) {}
@@ -115,28 +98,21 @@ class RAnimVal {
   /*
    * Play's the animation
    */
-  void play() {
-    start_t_point = RClock::now();
-    state_ = RAnimValState::PLAYING;
-  }
-
+  void play();
   /*
    * Stop's the animation
    */
-  void stop() { state_ = RAnimValState::STOPPED; }
+  void stop();
 
   /*
    * Resume's the animation
    */
-  void resume() { state_ = RAnimValState::PLAYING; }
+  void resume();
 
   /*
    * Stop the animation and reset's it
    */
-  void reset() {
-    state_ = RAnimValState::COMPLETED;
-    elapsed = 0.0f;
-  }
+  void reset();
 
   /*
    * Set the next animation to play once this one is finished
@@ -153,30 +129,6 @@ class RAnimVal {
                                 float timeout = 0.0f) {
     on_anim_end_ = callback;
     on_anim_end_timeout_ = timeout;
-  }
-
-  /*
-   * Get's the duration time scaled (useful to animate properly without relying
-   * on a wrong scaled duration frame per second)
-   */
-  const float duration_time_scaled() const {
-    return duration / TIME_SCALE_FACTOR;
-  }
-
-  /*
-   * Get's the next timeout time scaled (useful to animate properly without
-   * relying on a wrong scaled duration frame per second)
-   */
-  const float next_timeout_time_scaled() const {
-    return next_timeout_ / TIME_SCALE_FACTOR;
-  }
-
-  /*
-   * Get's the duration time scaled (useful to animate properly without relying
-   * on a wrong scaled duration frame per second)
-   */
-  const float on_anim_end_timeout_time_scaled() const {
-    return on_anim_end_timeout_ / TIME_SCALE_FACTOR;
   }
 
   /*

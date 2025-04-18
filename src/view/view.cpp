@@ -101,7 +101,7 @@ bool RWindowView::update() {
 
 void RNotificationView::on_spawn() {
   RView::on_spawn();
-  opening_anim_val_.concatenate(&closing_anim_val_, 5.0f);
+  opening_anim_val_.concatenate(&closing_anim_val_, 3.0f);
   opening_anim_val_.play();
 }
 
