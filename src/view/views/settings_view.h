@@ -18,7 +18,7 @@ class RSettingsView : public RWindowView {
   ImGuiColorEditFlags thm_alpha_flags_ = 0;
   std::shared_ptr<RTheme> thm_selected_ = nullptr;
   RAnimVal thm_editor_in_anim_val_{
-      1.0f, 0.0f, 0.2f, RAnimInterpolationType::CUBIC_BEZIER, 0.84f, 0.34f};
+      1.0f, 0.0f, 0.4f, RAnimInterpolationType::CUBIC_BEZIER, 0.84f, 0.34f};
 
   void render_general_settings_();
   void render_background_settings_();

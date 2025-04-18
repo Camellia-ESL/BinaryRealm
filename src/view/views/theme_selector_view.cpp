@@ -30,12 +30,12 @@ void RThemeSelectorView::render() {
   for (const auto& theme : themes) {
     const ImVec2 text_size = ImGui::CalcTextSize(theme->name.c_str());
     const float x_offset = (window_size.x - text_size.x) * 0.5f;
+    const bool is_active = thm_mngr.get_active_theme() == theme;
 
     ImGui::SetCursorPosX(x_offset);
 
-    ImGui::TextColored(thm_mngr.get_active_theme() == theme
-                           ? ImGui::GetStyleColorVec4(ImGuiCol_CheckMark)
-                           : ImGui::GetStyleColorVec4(ImGuiCol_Text),
+    ImGui::TextColored(is_active ? ImGui::GetStyleColorVec4(ImGuiCol_CheckMark)
+                                 : ImGui::GetStyleColorVec4(ImGuiCol_Text),
                        "%s", theme->name.c_str());
   }
 

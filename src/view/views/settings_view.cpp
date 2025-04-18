@@ -134,19 +134,18 @@ void RSettingsView::render_theme_settings_(RTheme& theme) {
                     {ImGui::GetContentRegionAvail().x,
                      ImGui::GetContentRegionAvail().y - BOTTOM_GAP_});
 
-  ImGui::PushStyleColor(ImGuiCol_TabSelected, {0.0f, 0.0f, 0.0f, 0.0f});
-  ImGui::BeginTabBar("##theme_edit_settings_tab",
-                     ImGuiTabBarFlags_DrawSelectedOverline);
-  ImGui::PopStyleColor();
-
   if (ImGui::ArrowButton("##back_button", ImGuiDir_Left)) {
     thm_selected_ = nullptr;
-    ImGui::EndTabBar();
     ImGui::EndChild();
     return;
   }
 
   ImGui::SameLine();
+
+  ImGui::PushStyleColor(ImGuiCol_TabSelected, {0.0f, 0.0f, 0.0f, 0.0f});
+  ImGui::BeginTabBar("##theme_edit_settings_tab",
+                     ImGuiTabBarFlags_DrawSelectedOverline);
+  ImGui::PopStyleColor();
 
   if (ImGui::BeginTabItem("General")) {
     render_theme_settings_generic_tab_(theme);
