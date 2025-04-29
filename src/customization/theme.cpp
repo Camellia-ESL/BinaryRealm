@@ -82,7 +82,7 @@ bool RThemeManager::load() {
     auto theme_create_res = create_theme("Default");
     if (!theme_create_res.ok()) return false;
     std::shared_ptr<RTheme> p_theme = theme_create_res.val();
-
+    p_theme->is_default = true;
     set_active_theme(p_theme);
     save();
     return true;

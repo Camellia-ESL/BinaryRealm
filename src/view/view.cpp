@@ -48,8 +48,6 @@ void RWindowView::opening_anim_(const ImVec2& size) {
 void RWindowView::closing_anim_() {
   if (closing_anim_val_.get_state() == RAnimValState::PLAYING) {
     float scale = closing_anim_val_.val();
-    const auto& theme =
-        RConfigsManager::get().get_theme_mngr().get_active_theme();
 
     // Set the size of the window
     const ImVec2 win_size = ImVec2(closing_anim_win_start_size_.x * scale,
