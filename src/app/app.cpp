@@ -69,6 +69,9 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
 
   bool is_running = true;
   while (is_running) {
+    bool did_render_host = false;
+    bool did_render_bg = false;
+
     // Process messages from windows, process keybinds and check if app should
     // quit
     if (win_api == RWindowApi::RWIN32) {
@@ -78,6 +81,7 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
 
     // Render's host window content (mainly viewports)
     if (host_render_fps_limiter_.should_update()) {
+      did_render_host = true;
       host_window_->get_gfx().begin_render();
       {
         RViewPool::get().render();
@@ -88,6 +92,7 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
 
     // Render's screen content
     if (bg_render_fps_limiter_.should_update()) {
+      did_render_bg = true;
       for (auto& screen : screens_) {
         screen->get_bg_window().get_gfx().begin_render();
 
@@ -95,6 +100,10 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
 
         screen->get_bg_window().get_gfx().render();
       }
+    }
+
+    if (!did_render_host && !did_render_bg) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }
 }
