@@ -37,6 +37,11 @@ class RViewPool {
   void destroy(RView* p_view);
 
   /*
+   * Destroy multiple views given their tag
+   */
+  void destroy(r_string tag);
+
+  /*
    * Render all views
    */
   void render();

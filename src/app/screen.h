@@ -30,6 +30,16 @@ class RScreen {
   const RScreenRect& get_rect() const { return rect_; }
 
   /*
+   * Get's the screen width
+   */
+  const float get_width() const { return rect_.right - rect_.left; }
+
+  /*
+   * Get's the screen height
+   */
+  const float get_height() const { return rect_.bottom - rect_.top; }
+
+  /*
    * Get's the index of the monitor
    */
   const int get_monitor_index() const { return monitor_index_; }

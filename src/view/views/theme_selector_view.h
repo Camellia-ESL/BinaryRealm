@@ -3,6 +3,9 @@
 #include "../../config/config_manager.h"
 #include "../view.h"
 
+/*
+ * Theme selector view
+ */
 class RThemeSelectorView : public RWindowView {
  public:
   using RWindowView::RWindowView;

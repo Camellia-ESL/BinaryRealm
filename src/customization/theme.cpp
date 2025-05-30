@@ -9,6 +9,8 @@
 #include "../config/config_manager.h"
 #include "../core/filesystem_utils.h"
 #include "../core/string.h"
+#include "../view/viewpool.h"
+#include "../view/views/taskbar_view.h"
 #include "theme_serializer.h"
 
 const r_string RThemeManager::get_theme_dir_path() {
@@ -151,6 +153,10 @@ void RThemeManager::set_active_theme(std::shared_ptr<RTheme> theme) {
   for (const auto& font : fonts_)
     if (font->name == theme->font_name)
       ImGui::GetIO().FontDefault = font->p_font;
+
+  // Spawn the taskbar if the theme has it enabled
+  RViewPool::get().destroy(RTaskbarView::TAG);
+  if (theme->is_taskbar_enabled) RViewPool::get().spawn<RTaskbarView>();
 
   // Reset the context back
   ImGui::SetCurrentContext(prev_ctx);

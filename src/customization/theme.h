@@ -15,6 +15,7 @@
 #include "../core/containers.h"
 #include "../core/string.h"
 #include "font.h"
+#include "widgets_settings_serializer.h"
 
 /*
  * Represent's an application theme
@@ -52,6 +53,14 @@ struct RTheme {
    * The active font name
    */
   r_string font_name;
+  /*
+   * Whether if the theme has the taskbar active or not
+   */
+  bool is_taskbar_enabled = true;
+  /*
+   * The various widgets settings
+   */
+  RWidgetsSettings widgets_settings;
 };
 
 /*

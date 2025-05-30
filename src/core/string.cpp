@@ -1,5 +1,8 @@
 #include "string.h"
 
+#include <ctime>
+#include <iomanip>
+#include <iostream>
 #include <random>
 #include <sstream>
 
@@ -33,4 +36,45 @@ const r_string r_str_uuid() {
     ss << dis(gen);
   };
   return ss.str();
+}
+
+const r_string r_date_and_time_as_str() {
+  std::time_t now = std::time(nullptr);
+  std::tm* localTime = std::localtime(&now);
+
+  std::ostringstream oss;
+  oss << std::setfill('0') << std::setw(2) << localTime->tm_mday << "/"
+      << std::setw(2) << (localTime->tm_mon + 1) << "/"
+      << (1900 + localTime->tm_year) << " - " << std::setw(2)
+      << localTime->tm_hour << ":" << std::setw(2) << localTime->tm_min;
+
+  return oss.str();
+}
+
+const r_string r_date_as_str() {
+  std::time_t now = std::time(nullptr);
+  std::tm* localTime = std::localtime(&now);
+
+  std::ostringstream oss;
+  oss << std::setfill('0') << std::setw(2) << localTime->tm_mday << "/"
+      << std::setw(2) << (localTime->tm_mon + 1) << "/"
+      << (1900 + localTime->tm_year);
+
+  return oss.str();
+}
+
+const r_string r_time_as_str() {
+  std::time_t now = std::time(nullptr);
+  std::tm* localTime = std::localtime(&now);
+
+  int hour = localTime->tm_hour;
+  std::string period = (hour >= 12) ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour == 0) hour = 12;  // Handle midnight and noon
+
+  std::ostringstream oss;
+  oss << std::setfill('0') << std::setw(2) << hour << ":" << std::setw(2)
+      << localTime->tm_min << " " << period;
+
+  return oss.str();
 }

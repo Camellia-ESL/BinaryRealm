@@ -13,7 +13,13 @@ void RViewPool::render() {
 }
 
 void RViewPool::destroy(RView* p_view) {
-  std::erase_if(views_, [&](const std::unique_ptr<RView>& obj) {
+  std::erase_if(views_, [&](const std::unique_ptr<RView>& obj) -> bool {
     return obj.get() == p_view;
+  });
+}
+
+void RViewPool::destroy(r_string tag) {
+  std::erase_if(views_, [&](const std::unique_ptr<RView>& obj) -> bool {
+    return obj->tag_ == tag;
   });
 }

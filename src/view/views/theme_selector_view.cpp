@@ -5,7 +5,6 @@ void RThemeSelectorView::on_spawn() {
   opening_anim_val_.duration = 0.45f;
 
   RWindowView::on_spawn();
-  return;
 }
 
 void RThemeSelectorView::render() {
@@ -14,6 +13,10 @@ void RThemeSelectorView::render() {
     end_frame_();
     return;
   }
+
+  // Force set the focus on the theme selector
+  ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+  platform_io.Platform_SetWindowFocus(ImGui::GetWindowViewport());
 
   auto& thm_mngr = RConfigsManager::get().get_theme_mngr();
   auto& themes = thm_mngr.get_themes();

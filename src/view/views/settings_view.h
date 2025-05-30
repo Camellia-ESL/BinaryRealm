@@ -3,7 +3,9 @@
 #include "../../config/config_manager.h"
 #include "../view.h"
 
-// App settings view
+/*
+ * App settings view
+ */
 class RSettingsView : public RWindowView {
  public:
   using RWindowView::RWindowView;
