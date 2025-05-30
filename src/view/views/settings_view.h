@@ -29,4 +29,7 @@ class RSettingsView : public RWindowView {
   void render_theme_settings_generic_tab_(RTheme& theme);
   void render_theme_settings_colors_tab_(RTheme& theme);
   void render_theme_settings_rendering_tab_(RTheme& theme);
+  void render_taskbar_settings_tab_(RTheme& theme);
+  void render_widgets_settings_tab_(RTheme& theme);
+  void render_widget_settings_tab_(RTheme& theme);
 };

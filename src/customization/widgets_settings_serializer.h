@@ -39,6 +39,8 @@ struct RWidgetSettings {
    * Whether the widget is enabled or not
    */
   bool enabled = true;
+
+  virtual const char* get_name() = 0;
 };
 
 /*
@@ -53,6 +55,8 @@ struct RDateWidgetSettings : public RWidgetSettings {
    * The color of the time text
    */
   ImVec4 time_text_color = {1.0f, 1.0f, 1.0f, 1.0f};
+
+  virtual const char* get_name() { return "Date Widget"; }
 };
 
 inline void to_json(json& j, const RDateWidgetSettings& settings) {

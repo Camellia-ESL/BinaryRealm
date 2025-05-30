@@ -1,8 +1,13 @@
 #include "settings_view.h"
 
+#include <iostream>
+#include <vector>
+
 #include "../../../external/imgui/imgui.h"
 #include "../../app/app.h"
 #include "../../core/filesystem_utils.h"
+#include "../../view/viewpool.h"
+#include "../../view/views/taskbar_view.h"
 
 void RSettingsView::render() {
   if (!begin_frame_()) {
@@ -162,6 +167,16 @@ void RSettingsView::render_theme_settings_(RTheme& theme) {
     ImGui::EndTabItem();
   }
 
+  if (ImGui::BeginTabItem("Taskbar")) {
+    render_taskbar_settings_tab_(theme);
+    ImGui::EndTabItem();
+  }
+
+  if (ImGui::BeginTabItem("Widgets")) {
+    render_widgets_settings_tab_(theme);
+    ImGui::EndTabItem();
+  }
+
   ImGui::EndTabBar();
 
   const auto& active_theme =
@@ -177,7 +192,6 @@ void RSettingsView::render_theme_settings_generic_tab_(RTheme& theme) {
   ImGui::BeginChild("##theme_general_edit");
   ImGui::SetNextItemWidth(150.0f);
   ImGui::InputText("Name", &theme.name);
-  // TODO: Add combo to select default background and font
 
   // Combo box to select the default theme background
   ImGui::SetNextItemWidth(150.0f);
@@ -277,3 +291,201 @@ void RSettingsView::render_theme_settings_rendering_tab_(RTheme& theme) {
   ImGui::PopItemWidth();
   ImGui::EndChild();
 }
+
+void RSettingsView::render_taskbar_settings_tab_(RTheme& theme) {
+  if (ImGui::ToggleButton("Enabed", &theme.is_taskbar_enabled) &&
+      &theme ==
+          RConfigsManager::get().get_theme_mngr().get_active_theme().get()) {
+    RViewPool::get().destroy(RTaskbarView::TAG);
+    if (theme.is_taskbar_enabled) RViewPool::get().spawn<RTaskbarView>();
+  }
+
+  std::vector<RWidgetSettings*> widget_settings{};
+  widget_settings.push_back(&theme.widgets_settings.date_widget);
+
+  ImGui::Text("Drag widgets between columns to organize taskbar");
+  ImGui::Separator();
+
+  // Helper lambda to get alignment name
+  auto GetAlignmentName = [](RWidgetAlignment alignment) -> const char* {
+    switch (alignment) {
+      case RWidgetAlignment::LEFT:
+        return "Left";
+      case RWidgetAlignment::CENTER:
+        return "Center";
+      case RWidgetAlignment::RIGHT:
+        return "Right";
+      default:
+        return "Unknown";
+    }
+  };
+
+  // Helper lambda to get widgets for specific alignment
+  auto GetWidgetsForAlignment = [&](RWidgetAlignment alignment) {
+    std::vector<std::pair<int, RWidgetSettings*>> result;
+    for (size_t i = 0; i < widget_settings.size(); ++i) {
+      if (widget_settings[i]->alignment == alignment &&
+          widget_settings[i]->enabled) {
+        result.push_back({static_cast<int>(i), widget_settings[i]});
+      }
+    }
+
+    // Sort by priority
+    std::sort(result.begin(), result.end(), [](const auto& a, const auto& b) {
+      return a.second->alignment_priority < b.second->alignment_priority;
+    });
+
+    return result;
+  };
+
+  // Helper lambda to update priorities after reordering
+  auto UpdatePriorities = [&](RWidgetAlignment alignment) {
+    auto widgets = GetWidgetsForAlignment(alignment);
+    for (size_t i = 0; i < widgets.size(); ++i) {
+      widgets[i].second->alignment_priority = static_cast<int>(i);
+    }
+  };
+
+  // Three column layout
+  if (ImGui::BeginTable(
+          "##organizer", 3,
+          ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit)) {
+    ImGui::TableSetupColumn("Left", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+    ImGui::TableSetupColumn("Center", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+    ImGui::TableSetupColumn("Right", ImGuiTableColumnFlags_WidthFixed, 200.0f);
+
+    ImGui::TableNextRow();
+
+    // Draw each alignment column
+    for (int col = 0; col < 3; ++col) {
+      ImGui::TableSetColumnIndex(col);
+
+      RWidgetAlignment alignment = static_cast<RWidgetAlignment>(col);
+
+      // Begin child window to make entire column a drop target
+      char child_id[32];
+      snprintf(child_id, sizeof(child_id), "Column%d", col);
+
+      ImVec2 child_size =
+          ImVec2(0, ImGui::GetContentRegionAvail().y -
+                        60);  // Leave space for disabled widgets
+      ImGui::BeginChild(child_id, child_size, true,
+                        ImGuiWindowFlags_AlwaysUseWindowPadding);
+
+      // Column header
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+      ImGui::Text("%s", GetAlignmentName(alignment));
+      ImGui::PopStyleColor();
+      ImGui::Separator();
+
+      // Get widgets for this alignment
+      auto widgets = GetWidgetsForAlignment(alignment);
+
+      // Draw each widget
+      for (const auto& [widget_idx, widget_ptr] : widgets) {
+        ImGui::PushID(widget_idx);
+
+        // Widget item
+        const char* widget_name = widget_settings[widget_idx]->get_name();
+
+        ImGui::Selectable(
+            widget_name, false, 0,
+            ImVec2(0, ImGui::GetTextLineHeightWithSpacing() * 1.2f));
+
+        // Drag source
+        if (ImGui::BeginDragDropSource()) {
+          ImGui::SetDragDropPayload("WIDGET", &widget_idx, sizeof(int));
+          ImGui::Text("Moving: %s", widget_name);
+          ImGui::EndDragDropSource();
+        }
+
+        // Drop target for reordering within same alignment
+        if (ImGui::BeginDragDropTarget()) {
+          if (const ImGuiPayload* payload =
+                  ImGui::AcceptDragDropPayload("WIDGET")) {
+            int dropped_idx = *(const int*)payload->Data;
+            if (dropped_idx != widget_idx &&
+                widget_settings[dropped_idx]->alignment == alignment) {
+              // Swap priorities
+              int temp_priority =
+                  widget_settings[dropped_idx]->alignment_priority;
+              widget_settings[dropped_idx]->alignment_priority =
+                  widget_ptr->alignment_priority;
+              widget_ptr->alignment_priority = temp_priority;
+              UpdatePriorities(alignment);
+            }
+          }
+          ImGui::EndDragDropTarget();
+        }
+
+        // Context menu
+        if (ImGui::BeginPopupContextItem()) {
+          if (ImGui::MenuItem("Disable")) {
+            widget_ptr->enabled = false;
+          }
+          ImGui::EndPopup();
+        }
+
+        ImGui::PopID();
+      }
+
+      // Make the entire child window a drop target
+      ImGui::EndChild();
+
+      if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload =
+                ImGui::AcceptDragDropPayload("WIDGET")) {
+          int dropped_idx = *(const int*)payload->Data;
+          if (widget_settings[dropped_idx]->alignment != alignment) {
+            widget_settings[dropped_idx]->alignment = alignment;
+            widget_settings[dropped_idx]->alignment_priority =
+                static_cast<int>(widgets.size());
+            UpdatePriorities(alignment);
+          }
+        }
+        ImGui::EndDragDropTarget();
+      }
+
+      // Visual feedback for entire column when hovering during drag
+      if (ImGui::IsItemHovered() && ImGui::GetDragDropPayload()) {
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        ImVec2 p_min = ImGui::GetItemRectMin();
+        ImVec2 p_max = ImGui::GetItemRectMax();
+        draw_list->AddRectFilled(p_min, p_max, IM_COL32(100, 200, 100, 30));
+        draw_list->AddRect(p_min, p_max, IM_COL32(100, 200, 100, 150), 0.0f, 0,
+                           2.0f);
+      }
+    }
+
+    ImGui::EndTable();
+  }
+
+  // Disabled widgets section
+  ImGui::Separator();
+  ImGui::Text("Disabled Widgets:");
+
+  for (size_t i = 0; i < widget_settings.size(); ++i) {
+    if (!widget_settings[i]->enabled) {
+      ImGui::PushID(static_cast<int>(i));
+
+      const char* widget_name = widget_settings[i]->get_name();
+
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+      ImGui::Selectable(widget_name);
+      ImGui::PopStyleColor();
+
+      if (ImGui::BeginPopupContextItem()) {
+        if (ImGui::MenuItem("Enable")) {
+          widget_settings[i]->enabled = true;
+        }
+        ImGui::EndPopup();
+      }
+
+      ImGui::PopID();
+    }
+  }
+}
+
+void RSettingsView::render_widgets_settings_tab_(RTheme& theme) {}
+
+void RSettingsView::render_widget_settings_tab_(RTheme& theme) {}
