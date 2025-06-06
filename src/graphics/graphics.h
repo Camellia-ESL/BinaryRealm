@@ -60,8 +60,14 @@ class RIGraphicsApi {
    */
   ImGuiContext* get_imgui_ctx() { return imgui_ctx_; }
 
+  /*
+   * Get's the imgui font awesome icons set 6
+   */
+  ImFont* const get_fa_icon_font_6() const { return fa_icon_font_6_; }
+
  protected:
   ImGuiContext* imgui_ctx_;
+  ImFont* fa_icon_font_6_;
 
   /*
    * Should be called once in every init() backend, init's all the needed imgui

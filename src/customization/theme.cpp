@@ -7,11 +7,13 @@
 
 #include "../app/app.h"
 #include "../config/config_manager.h"
+#include "../config/static_configs.h"
 #include "../core/filesystem_utils.h"
 #include "../core/string.h"
 #include "../view/viewpool.h"
 #include "../view/views/taskbar_view.h"
 #include "theme_serializer.h"
+
 
 const r_string RThemeManager::get_theme_dir_path() {
   return RConfigsManager::get().get_config_dir_path() + "\\themes";
@@ -168,8 +170,8 @@ void RThemeManager::load_fonts_() {
 
   for (const auto& file_path : dir_read_res.val()) {
     r_string file_path_str = file_path.string();
-    ImFont* font_rsc =
-        ImGui::GetIO().Fonts->AddFontFromFileTTF(file_path_str.c_str(), 14.0f);
+    ImFont* font_rsc = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+        file_path_str.c_str(), RStaticConfigs::FONTS_DEFAULT_SIZE);
     if (!font_rsc) continue;
 
     auto font_info_buff = std::make_shared<RFont>();

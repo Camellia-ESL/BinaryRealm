@@ -1,5 +1,8 @@
 #include "graphics.h"
 
+#include "../../external/font-awesome-icons/font_awesome_icons_6.h"
+#include "../config/static_configs.h"
+
 void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   // Check imgui version integrity
   IMGUI_CHECKVERSION();
@@ -9,7 +12,6 @@ void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   ImGui::SetCurrentContext(imgui_ctx_);
 
   ImGuiIO& io = ImGui::GetIO();
-  // TODO: Remove imgui navigation keybinds
 
   // Disable INI file serializing
   io.IniFilename = NULL;
@@ -22,4 +24,18 @@ void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   io.ConfigViewportsNoAutoMerge = true;
 
   ImGui::StyleColorsDark();
+
+  // Load icon fonts
+  io.Fonts->AddFontDefault();
+
+  float icon_font_size = RStaticConfigs::FONTS_DEFAULT_SIZE;
+  static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+  ImFontConfig icons_config;
+  icons_config.MergeMode = true;
+  icons_config.PixelSnapH = true;
+  icons_config.GlyphMinAdvanceX = icon_font_size;
+  icons_config.GlyphOffset.y = 0.000592f * powf(icon_font_size, 3.08f);
+  fa_icon_font_6_ = io.Fonts->AddFontFromFileTTF(
+      "assets/fonts/icons-fonts/" FONT_ICON_FILE_NAME_FAS, icon_font_size,
+      &icons_config, icons_ranges);
 }
