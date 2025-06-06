@@ -301,6 +301,7 @@ void RSettingsView::render_taskbar_settings_tab_(RTheme& theme) {
 
   std::vector<RWidgetSettings*> widget_settings{};
   widget_settings.push_back(&theme.widgets_settings.date_widget);
+  widget_settings.push_back(&theme.widgets_settings.network_widget);
 
   ImGui::Text("Drag widgets between columns to organize taskbar");
   ImGui::Separator();
@@ -486,7 +487,9 @@ void RSettingsView::render_taskbar_settings_tab_(RTheme& theme) {
 }
 
 void RSettingsView::render_widgets_settings_tab_(RTheme& theme) {
-  constexpr const char* widget_names[] = {"Date Widget"};
+  const char* widget_names[] = {
+      theme.widgets_settings.date_widget.get_name(),
+      theme.widgets_settings.network_widget.get_name()};
   const int widget_count = IM_ARRAYSIZE(widget_names);
 
   // Left Panel: Widget List
@@ -507,6 +510,11 @@ void RSettingsView::render_widgets_settings_tab_(RTheme& theme) {
     render_date_widget_settings(theme);
   }
 
+  // Network widget
+  if (widget_selected_idx == 1) {
+    render_network_widget_settings(theme);
+  }
+
   ImGui::EndChild();
 }
 
@@ -525,4 +533,27 @@ void RSettingsView::render_date_widget_settings(RTheme& theme) {
                     ImGuiColorEditFlags_AlphaBar);
   ImGui::SameLine(0.0f, theme.imgui_style.ItemInnerSpacing.x);
   ImGui::TextUnformatted("Time Color");
+}
+
+void RSettingsView::render_network_widget_settings(RTheme& theme) {
+  RNetworkWidgetSettings& settings = theme.widgets_settings.network_widget;
+  ImGui::SeparatorText("Network Widget Settings");
+
+  ImGui::ToggleButton("Enabled", &settings.enabled);
+
+  ImGui::ColorEdit4("##adapter_color", (float*)&settings.adapter_color,
+                    ImGuiColorEditFlags_AlphaBar);
+  ImGui::SameLine(0.0f, theme.imgui_style.ItemInnerSpacing.x);
+  ImGui::TextUnformatted("Adapter Color");
+
+  ImGui::ColorEdit4("##download_kbps_color",
+                    (float*)&settings.download_kbps_color,
+                    ImGuiColorEditFlags_AlphaBar);
+  ImGui::SameLine(0.0f, theme.imgui_style.ItemInnerSpacing.x);
+  ImGui::TextUnformatted("Download Kbps Color");
+
+  ImGui::ColorEdit4("##upload_kbps_color", (float*)&settings.upload_kbps_color,
+                    ImGuiColorEditFlags_AlphaBar);
+  ImGui::SameLine(0.0f, theme.imgui_style.ItemInnerSpacing.x);
+  ImGui::TextUnformatted("Upload Kbps Color");
 }

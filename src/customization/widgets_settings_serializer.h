@@ -63,6 +63,7 @@ inline void to_json(json& j, const RDateWidgetSettings& settings) {
   j = json{{"date_text_color", settings.date_text_color},
            {"alignment", settings.alignment},
            {"alignment_priority", settings.alignment_priority},
+           {"enabled", settings.enabled},
            {"time_text_color", settings.time_text_color}};
 }
 
@@ -73,6 +74,49 @@ inline void from_json(const json& j, RDateWidgetSettings& settings) {
       j.value("time_text_color", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
   settings.alignment = j.value("alignment", RWidgetAlignment::RIGHT);
   settings.alignment_priority = j.value("alignment_priority", 0);
+  settings.enabled = j.value("enabled", true);
+}
+
+/*
+ * Contains all the settings about a network widget
+ */
+struct RNetworkWidgetSettings : public RWidgetSettings {
+  /*
+   * The color of the adapter name and icon
+   */
+  ImVec4 adapter_color = {1.0f, 1.0f, 1.0f, 1.0f};
+  /*
+   * The color of the download kbps and icon
+   */
+  ImVec4 download_kbps_color = {1.0f, 1.0f, 1.0f, 1.0f};
+  /*
+   * The color of the upload kbps and icon
+   */
+  ImVec4 upload_kbps_color = {1.0f, 1.0f, 1.0f, 1.0f};
+  virtual const char* get_name() { return "Network Widget"; }
+};
+
+inline void to_json(json& j, const RNetworkWidgetSettings& settings) {
+  j = json{
+      {"adapter_color", settings.adapter_color},
+      {"download_kbps_color", settings.download_kbps_color},
+      {"upload_kbps_color", settings.upload_kbps_color},
+      {"alignment", settings.alignment},
+      {"alignment_priority", settings.alignment_priority},
+      {"enabled", settings.enabled},
+  };
+}
+
+inline void from_json(const json& j, RNetworkWidgetSettings& settings) {
+  settings.adapter_color =
+      j.value("adapter_color", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  settings.download_kbps_color =
+      j.value("download_kbps_color", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  settings.upload_kbps_color =
+      j.value("upload_kbps_color", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  settings.alignment = j.value("alignment", RWidgetAlignment::RIGHT);
+  settings.alignment_priority = j.value("alignment_priority", 0);
+  settings.enabled = j.value("enabled", true);
 }
 
 /*
@@ -80,12 +124,15 @@ inline void from_json(const json& j, RDateWidgetSettings& settings) {
  */
 struct RWidgetsSettings {
   RDateWidgetSettings date_widget{};
+  RNetworkWidgetSettings network_widget{};
 };
 
 inline void to_json(json& j, const RWidgetsSettings& settings) {
-  j = json{{"date_widget", settings.date_widget}};
+  j = json{{"date_widget", settings.date_widget},
+           {"network_widget", settings.network_widget}};
 }
 
 inline void from_json(const json& j, RWidgetsSettings& settings) {
   settings.date_widget = j.value("date_widget", RDateWidgetSettings{});
+  settings.network_widget = j.value("network_widget", RNetworkWidgetSettings{});
 }

@@ -9,6 +9,9 @@
 #ifdef _WIN32
   #include <winsock2.h>
   #include <iphlpapi.h>
+  #include <Wlanapi.h>
+  #include <comdef.h>
 
+  #pragma comment(lib, "Wlanapi.lib")
   #pragma comment(lib, "iphlpapi.lib")
 #endif

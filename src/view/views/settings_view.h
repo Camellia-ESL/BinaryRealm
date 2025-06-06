@@ -33,4 +33,5 @@ class RSettingsView : public RWindowView {
   void render_taskbar_settings_tab_(RTheme& theme);
   void render_widgets_settings_tab_(RTheme& theme);
   void render_date_widget_settings(RTheme& theme);
+  void render_network_widget_settings(RTheme& theme);
 };

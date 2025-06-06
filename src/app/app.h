@@ -58,6 +58,13 @@ class RApp {
    */
   RFrameRateLimiter& get_bg_fps_limiter() { return bg_render_fps_limiter_; }
 
+  /*
+   * Get's the network adapters manager
+   */
+  const RNetworkAdaptersManager& get_net_adapters_mngr() {
+    return network_adapters_mngr_;
+  }
+
  private:
   // The host window containing the viewports
   std::shared_ptr<RIWindow> host_window_;
@@ -67,5 +74,5 @@ class RApp {
   RFrameRateLimiter host_render_fps_limiter_;
   RFrameRateLimiter bg_render_fps_limiter_;
   // Network adapters manager
-  RNetworkAdaptersManager network_;
+  RNetworkAdaptersManager network_adapters_mngr_;
 };

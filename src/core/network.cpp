@@ -1,6 +1,7 @@
 #include "network.h"
 
 #include <memory>
+#include <unordered_map>
 
 RNetworkAdaptersManager::RNetworkAdaptersManager() {
   refresh_adapters();
@@ -11,6 +12,43 @@ void RNetworkAdaptersManager::refresh_adapters() {
   adapters_.clear();
   last_snapshots_.clear();
 
+  // Get all connected Wi-Fi SSIDs via WLAN API
+  std::unordered_map<r_string, r_string> wifi_ssids;
+  HANDLE hClient = nullptr;
+  DWORD negotiated_version = 0;
+
+  if (WlanOpenHandle(2, nullptr, &negotiated_version, &hClient) ==
+      ERROR_SUCCESS) {
+    PWLAN_INTERFACE_INFO_LIST pIfList = nullptr;
+    if (WlanEnumInterfaces(hClient, nullptr, &pIfList) == ERROR_SUCCESS) {
+      for (int i = 0; i < (int)pIfList->dwNumberOfItems; ++i) {
+        const WLAN_INTERFACE_INFO& iface = pIfList->InterfaceInfo[i];
+        WLAN_CONNECTION_ATTRIBUTES* pConnectInfo = nullptr;
+        DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
+        WLAN_OPCODE_VALUE_TYPE opCode = wlan_opcode_value_type_invalid;
+
+        if (WlanQueryInterface(hClient, &iface.InterfaceGuid,
+                               wlan_intf_opcode_current_connection, nullptr,
+                               &connectInfoSize, (PVOID*)&pConnectInfo,
+                               &opCode) == ERROR_SUCCESS) {
+          if (pConnectInfo->isState == wlan_interface_state_connected) {
+            const DOT11_SSID& ssid =
+                pConnectInfo->wlanAssociationAttributes.dot11Ssid;
+            r_string ssid_str(reinterpret_cast<const char*>(ssid.ucSSID),
+                              ssid.uSSIDLength);
+            r_string interface_desc =
+                wstr_to_rstr(std::wstring(iface.strInterfaceDescription));
+            wifi_ssids[interface_desc] = ssid_str;
+          }
+          WlanFreeMemory(pConnectInfo);
+        }
+      }
+      WlanFreeMemory(pIfList);
+    }
+    WlanCloseHandle(hClient, nullptr);
+  }
+
+  // Now fetch standard network info
   ULONG buffer_size = 0;
   GetAdaptersAddresses(AF_UNSPEC, 0, nullptr, nullptr, &buffer_size);
   auto buffer = std::make_unique<BYTE[]>(buffer_size);
@@ -23,14 +61,24 @@ void RNetworkAdaptersManager::refresh_adapters() {
 
   for (auto* addr = p_addrs; addr != nullptr; addr = addr->Next) {
     if (addr->OperStatus != IfOperStatusUp) continue;
+    if (addr->IfType == IF_TYPE_SOFTWARE_LOOPBACK) continue;
 
     MIB_IFROW row = {};
     row.dwIndex = addr->IfIndex;
-
     if (GetIfEntry(&row) != NO_ERROR) continue;
 
+    r_string net_name;
+    if (addr->Description != nullptr) {
+      r_string description_str = wstr_to_rstr(std::wstring(addr->Description));
+      auto it = wifi_ssids.find(description_str);
+      if (it != wifi_ssids.end()) {
+        net_name = it->second;
+      }
+    }
+
     adapters_.emplace_back(
-        RNetAdapter{wstr_to_rstr(addr->FriendlyName), addr->IfIndex, 0.0, 0.0});
+        RNetAdapter{wstr_to_rstr(std::wstring(addr->FriendlyName)), net_name,
+                    addr->IfIndex, 0.0, 0.0});
 
     last_snapshots_.emplace_back(
         NetSnapshot{addr->IfIndex, row.dwInOctets, row.dwOutOctets});
@@ -41,7 +89,13 @@ void RNetworkAdaptersManager::update() {
   const auto now = std::chrono::steady_clock::now();
   const double seconds =
       std::chrono::duration<double>(now - last_updated_).count();
-  if (seconds <= 0.0) return;
+  const double refresh_seconds =
+      std::chrono::duration<double>(now - last_refresh_).count();
+  if (seconds <= 1.0) return;
+  if (refresh_seconds >= 30.0) {
+    refresh_adapters();
+    last_refresh_ = now;
+  }
 
   for (size_t i = 0; i < adapters_.size(); ++i) {
     MIB_IFROW row = {};

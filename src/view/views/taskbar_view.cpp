@@ -14,6 +14,12 @@ void RTaskbarView::on_spawn() {
                                .get_active_theme()
                                ->widgets_settings.date_widget,
                           &date_widget});
+
+  all_widgets_.push_back({&RConfigsManager::get()
+                               .get_theme_mngr()
+                               .get_active_theme()
+                               ->widgets_settings.network_widget,
+                          &network_widget});
 }
 
 void RTaskbarView::render() {
@@ -86,6 +92,8 @@ void RTaskbarView::render() {
     }
   }
 
+  const float height_cursor_pos = ImGui::GetCursorPosY();
+
   // LEFT widgets rendering
   bool first = true;
   for (const auto& widget : left_aligned_widgets) {
@@ -99,6 +107,7 @@ void RTaskbarView::render() {
     float centerStartX =
         win_padding + (content_width - total_center_width) / 2.0f;
     ImGui::SetCursorPosX(centerStartX);
+    ImGui::SetCursorPosY(height_cursor_pos);
 
     first = true;
     for (const auto& widget : center_aligned_widgets) {
@@ -112,6 +121,7 @@ void RTaskbarView::render() {
   if (!right_aligned_widgets.empty()) {
     float rightStartX = win_width - win_padding - total_right_width;
     ImGui::SetCursorPosX(rightStartX);
+    ImGui::SetCursorPosY(height_cursor_pos);
 
     first = true;
     for (const auto& widget : right_aligned_widgets) {

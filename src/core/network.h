@@ -16,6 +16,10 @@ struct RNetAdapter {
    */
   r_string name;
   /*
+   * The network name to which the adapter is connected to
+   */
+  r_string network_name;
+  /*
    * The network interface index
    */
   uint32_t index;
@@ -55,6 +59,7 @@ class RNetworkAdaptersManager {
   std::vector<RNetAdapter> adapters_;
   std::vector<NetSnapshot> last_snapshots_;
   std::chrono::steady_clock::time_point last_updated_;
+  std::chrono::steady_clock::time_point last_refresh_;
 
   void refresh_adapters();
 };

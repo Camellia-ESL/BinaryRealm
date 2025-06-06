@@ -92,7 +92,7 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
       host_window_->get_gfx().begin_render();
       {
         // Refresh network stats
-        network_.update();
+        network_adapters_mngr_.update();
 
         // Render
         RViewPool::get().render();
