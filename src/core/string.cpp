@@ -1,10 +1,17 @@
 #include "string.h"
 
+#include <codecvt>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <locale>
 #include <random>
 #include <sstream>
+
+const r_string wstr_to_rstr(const std::wstring& wstr) {
+  static std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+  return converter.to_bytes(wstr);
+}
 
 const r_string r_str_uuid() {
   // Random Generator Setup for uuid string

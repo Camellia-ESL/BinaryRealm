@@ -1,6 +1,5 @@
 #include "settings_view.h"
 
-#include <iostream>
 #include <vector>
 
 #include "../../../external/imgui/imgui.h"
@@ -293,7 +292,7 @@ void RSettingsView::render_theme_settings_rendering_tab_(RTheme& theme) {
 }
 
 void RSettingsView::render_taskbar_settings_tab_(RTheme& theme) {
-  if (ImGui::ToggleButton("Enabed", &theme.is_taskbar_enabled) &&
+  if (ImGui::ToggleButton("Enabled", &theme.is_taskbar_enabled) &&
       &theme ==
           RConfigsManager::get().get_theme_mngr().get_active_theme().get()) {
     RViewPool::get().destroy(RTaskbarView::TAG);
@@ -486,6 +485,44 @@ void RSettingsView::render_taskbar_settings_tab_(RTheme& theme) {
   }
 }
 
-void RSettingsView::render_widgets_settings_tab_(RTheme& theme) {}
+void RSettingsView::render_widgets_settings_tab_(RTheme& theme) {
+  constexpr const char* widget_names[] = {"Date Widget"};
+  const int widget_count = IM_ARRAYSIZE(widget_names);
 
-void RSettingsView::render_widget_settings_tab_(RTheme& theme) {}
+  // Left Panel: Widget List
+  ImGui::BeginChild("WidgetList", ImVec2(150, 0), true);
+  for (int i = 0; i < widget_count; i++) {
+    if (ImGui::Selectable(widget_names[i], widget_selected_idx == i)) {
+      widget_selected_idx = i;
+    }
+  }
+  ImGui::EndChild();
+
+  // Right Panel: Widget Settings
+  ImGui::SameLine();
+  ImGui::BeginChild("WidgetConfig", ImVec2(0, 0), true);
+
+  // Date widget
+  if (widget_selected_idx == 0) {
+    render_date_widget_settings(theme);
+  }
+
+  ImGui::EndChild();
+}
+
+void RSettingsView::render_date_widget_settings(RTheme& theme) {
+  RDateWidgetSettings& settings = theme.widgets_settings.date_widget;
+  ImGui::SeparatorText("Date Widget Settings");
+
+  ImGui::ToggleButton("Enabled", &settings.enabled);
+
+  ImGui::ColorEdit4("##date_color", (float*)&settings.date_text_color,
+                    ImGuiColorEditFlags_AlphaBar);
+  ImGui::SameLine(0.0f, theme.imgui_style.ItemInnerSpacing.x);
+  ImGui::TextUnformatted("Date Color");
+
+  ImGui::ColorEdit4("##time_color", (float*)&settings.time_text_color,
+                    ImGuiColorEditFlags_AlphaBar);
+  ImGui::SameLine(0.0f, theme.imgui_style.ItemInnerSpacing.x);
+  ImGui::TextUnformatted("Time Color");
+}

@@ -19,6 +19,7 @@ class RSettingsView : public RWindowView {
   ImGuiTextFilter themes_list_filter_;
   ImGuiColorEditFlags thm_alpha_flags_ = 0;
   std::shared_ptr<RTheme> thm_selected_ = nullptr;
+  int widget_selected_idx = 0;
   RAnimVal thm_editor_in_anim_val_{
       1.0f, 0.0f, 0.4f, RAnimInterpolationType::CUBIC_BEZIER, 0.84f, 0.34f};
 
@@ -31,5 +32,5 @@ class RSettingsView : public RWindowView {
   void render_theme_settings_rendering_tab_(RTheme& theme);
   void render_taskbar_settings_tab_(RTheme& theme);
   void render_widgets_settings_tab_(RTheme& theme);
-  void render_widget_settings_tab_(RTheme& theme);
+  void render_date_widget_settings(RTheme& theme);
 };

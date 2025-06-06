@@ -9,6 +9,8 @@ void RDateWidget::render() {
                           .get_theme_mngr()
                           .get_active_theme()
                           ->widgets_settings.date_widget;
+  if (!theme.enabled) return;
+
   if (is_platformed) begin_frame_();
   ImGui::TextColored(theme.date_text_color, r_date_as_str().c_str());
   ImGui::SameLine();
@@ -23,6 +25,7 @@ const ImVec2 RDateWidget::get_size() {
                           .get_theme_mngr()
                           .get_active_theme()
                           ->widgets_settings.date_widget;
+  if (!theme.enabled) return ImVec2{0.0f, 0.0f};
 
   ImVec2 size = ImGui::CalcTextSize(
       r_str_to_cstr(r_date_as_str() + "-" + r_time_as_str()));

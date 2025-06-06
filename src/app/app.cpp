@@ -32,10 +32,17 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor,
 std::vector<RScreenRect> fetch_screen_rects();
 
 void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
-// Enables Process DPI awareness for windows platform, it's important to do it
-// at the start before every other initialization in order to properly handle
-// DPI changes across different screens
 #ifdef _WIN32
+#ifndef _DEBUG
+  // Hide console if we are not in debug
+  HWND console_hwnd = GetConsoleWindow();
+  ShowWindow(console_hwnd, SW_HIDE);
+  SetWindowLong(console_hwnd, GWL_EXSTYLE,
+                GetWindowLong(console_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+#endif
+  // Enables Process DPI awareness for windows platform, it's important to do it
+  // at the start before every other initialization in order to properly handle
+  // DPI changes across different screens
   SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 #endif
 
@@ -84,6 +91,10 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
       did_render_host = true;
       host_window_->get_gfx().begin_render();
       {
+        // Refresh network stats
+        network_.update();
+
+        // Render
         RViewPool::get().render();
         RConfigsManager::get().get_desktop_bg_mngr().update();
       }

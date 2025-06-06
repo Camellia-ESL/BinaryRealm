@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "../core/network.h"
 #include "../core/time.h"
 #include "../graphics/graphics.h"
 #include "screen.h"
@@ -65,4 +66,6 @@ class RApp {
   // Framerate limiters
   RFrameRateLimiter host_render_fps_limiter_;
   RFrameRateLimiter bg_render_fps_limiter_;
+  // Network adapters manager
+  RNetworkAdaptersManager network_;
 };

@@ -105,7 +105,7 @@ bool RDesktopBackgroundManager::load() {
     loaded_bgs_.emplace_back(img_load_res.val());
   }
 
-  set_background(&loaded_bgs_[0]);
+  if (!loaded_bgs_.empty()) set_background(&loaded_bgs_[0]);
 
   return true;
 }
