@@ -59,7 +59,7 @@ void RNetworkWidget::render() {
   ImGui::SameLine();
 
   // Download kbps
-  if (curr_adapter_->download_kbps >= 1000.0) {
+  if (curr_adapter_->download_kbps >= 100.0) {
     ImGui::TextColored(theme.download_kbps_color, "%.2f mbps",
                        curr_adapter_->download_kbps / 1000.0);
   } else {
@@ -77,7 +77,7 @@ void RNetworkWidget::render() {
   ImGui::SameLine();
 
   // Upload kbps
-  if (curr_adapter_->upload_kpbs >= 1000.0) {
+  if (curr_adapter_->upload_kpbs >= 100.0) {
     ImGui::TextColored(theme.upload_kbps_color, "%.2f mbps",
                        curr_adapter_->upload_kpbs / 1000.0);
   } else {
@@ -96,7 +96,9 @@ const ImVec2 RNetworkWidget::get_size() {
   if (!theme.enabled || !curr_adapter_) return ImVec2{0.0f, 0.0f};
 
   // TODO: Simple optimization reusing the same vec2
-  ImVec2 size_text = ImGui::CalcTextSize(curr_adapter_->network_name.c_str());
+  ImVec2 size_text = ImGui::CalcTextSize(
+      !curr_adapter_->network_name.empty() ? curr_adapter_->network_name.c_str()
+                                           : curr_adapter_->name.c_str());
   size_text.x += (ImGui::CalcTextSize("00.00 kbps").x * 2.0f);
   size_text.x += (ImGui::GetStyle().ItemSpacing.x * 5.0f);
 

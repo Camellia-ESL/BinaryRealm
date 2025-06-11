@@ -29,7 +29,9 @@ void RTaskbarView::render() {
                             TASKBAR_HEIGHT});
 
   ImGuiWindowClass window_class;
-  window_class.ViewportFlagsOverrideSet = ImGuiViewportFlags_NoTaskBarIcon;
+  window_class.ViewportFlagsOverrideSet =
+      ImGuiViewportFlags_NoTaskBarIcon | ImGuiViewportFlags_TopMost;
+
   ImGui::SetNextWindowClass(&window_class);
   ImGui::Begin(r_str_to_cstr(get_name() + "##" + uuid_), nullptr,
                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
