@@ -19,17 +19,19 @@
 
 static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor,
                                      LPRECT lprcMonitor, LPARAM dwData) {
-  auto monitors = reinterpret_cast<std::vector<RScreenRect>*>(dwData);
+  auto monitors =
+      reinterpret_cast<std::vector<std::shared_ptr<RScreen>>*>(dwData);
 
   RScreenRect rect{*(RScreenRect*)lprcMonitor};
-  monitors->emplace_back(rect);
 
+  MONITORINFO mi = {sizeof(MONITORINFO)};
+  if (GetMonitorInfo(hMonitor, &mi)) {
+    monitors->emplace_back(std::make_shared<RScreen>(
+        rect, monitors->size(), (mi.dwFlags & MONITORINFOF_PRIMARY) != 0));
+  }
   return TRUE;
 }
-
 #endif
-
-std::vector<RScreenRect> fetch_screen_rects();
 
 void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
 #ifdef _WIN32
@@ -46,19 +48,16 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
   SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 #endif
 
+  // Load all the screens and initialize the windows and graphics apis
+  // IMPORTANT: Lot's of code workflows under this one relies on screens apis so
+  // this has to be the first thing done
+  fetch_and_update_screens_(win_api, gfx_api);
+
   // Load the host window
   if (win_api == RWindowApi::RWIN32)
     host_window_ = std::make_shared<RWin32Api>();
 
   host_window_->init(gfx_api, 0, 0, 0, 0, true);
-
-  // Load all the screens and initialize the windows and graphics apis
-  auto screen_rects = fetch_screen_rects();
-  for (int i = 0; i < screen_rects.size(); i++) {
-    auto screen =
-        screens_.emplace_back(std::make_shared<RScreen>(screen_rects[i], i));
-    screen->init(win_api, gfx_api);
-  }
 
   // Load the configs
   RConfigsManager::get().load_all();
@@ -119,11 +118,24 @@ void RApp::run(RWindowApi win_api, RGraphicsApiType gfx_api) {
   }
 }
 
-std::vector<RScreenRect> fetch_screen_rects() {
-  std::vector<RScreenRect> screen_rects;
+void RApp::fetch_and_update_screens_(RWindowApi win_api,
+                                     RGraphicsApiType gfx_api) {
+  // Clear and destroy every previous monitor
+  screens_.clear();
+
+  // Fill monitor array with screens ready to be initialized
 #ifdef _WIN32
   EnumDisplayMonitors(NULL, NULL, MonitorEnumProc,
-                      reinterpret_cast<LPARAM>(&screen_rects));
+                      reinterpret_cast<LPARAM>(&screens_));
 #endif
-  return screen_rects;
+
+  // Set the main screen ptr before initializing every screen
+  for (auto& screen : screens_) {
+    if (screen->is_primary()) main_screen_ = screen;
+  }
+
+  // Init window platform and graphics driver for every screen
+  for (auto& screen : screens_) {
+    screen->init(win_api, gfx_api);
+  }
 }

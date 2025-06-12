@@ -1,12 +1,17 @@
 #include "background.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <future>
+#include <utility>
 
 #include "../../external/imgui/imgui.h"
 #include "../app/app.h"
 #include "../config/config_manager.h"
 #include "../config/static_configs.h"
+
+// Fix max declaration from windows headers overlapping std::max
+#undef max
 
 const r_string RDesktopBackgroundManager::get_bg_images_dir_path() {
   return RConfigsManager::get().get_config_dir_path() + "\\backgrounds\\images";
@@ -40,14 +45,33 @@ void RDesktopBackgroundManager::render(RScreen& screen) {
 
   auto& io = ImGui::GetIO();
   ImDrawList* draw_list = ImGui::GetForegroundDrawList();
+  const ImVec2 display_size = ImGui::GetIO().DisplaySize;
+
+  const auto compute_fill_img_uvs =
+      [&](const RImage& img) -> std::pair<ImVec2, ImVec2> {
+    ImVec2 img_size = ImVec2(img.get_width(), img.get_height());
+    float scale =
+        std::max(display_size.x / img_size.x, display_size.y / img_size.y);
+    ImVec2 img_display_size = img_size * scale;
+    ImVec2 offset = (img_display_size - display_size) * 0.5f;
+
+    return {
+        ImVec2(offset.x / img_display_size.x, offset.y / img_display_size.y),
+        ImVec2((offset.x + display_size.x) / img_display_size.x,
+               (offset.y + display_size.y) / img_display_size.y)};
+  };
 
   if ((bg_change_anim_val_rot_1_.get_state() == RAnimValState::PLAYING ||
        bg_change_anim_val_rot_2_.get_state() == RAnimValState::PLAYING) &&
       prev_bg_) {
-    const ImVec2 display_size = ImGui::GetIO().DisplaySize;
+    const auto prev_img_uvs = compute_fill_img_uvs(*prev_bg_->img);
+    const auto curr_img_uvs = compute_fill_img_uvs(*cur_bg_->img);
+
     draw_list->AddImage((ImTextureID)prev_bg_->img->get_screen_srvs().at(
                             screen.get_monitor_index()),
-                        {0.0f, 0.0f}, display_size);
+                        {0.0f, 0.0f}, display_size, prev_img_uvs.first,
+                        prev_img_uvs.second);
+
     draw_list->AddImageQuad(
         (ImTextureID)cur_bg_->img->get_screen_srvs().at(
             screen.get_monitor_index()),
@@ -57,17 +81,25 @@ void RDesktopBackgroundManager::render(RScreen& screen) {
              (bg_change_anim_val_rot_2_.get_state() == RAnimValState::PLAYING
                   ? bg_change_anim_val_rot_2_.val()
                   : 0.0f)},
-        {0.0f, display_size.y}, {0.0f, 0.0f}, {1.0f, 0.0f},
-        {1.0f, (bg_change_anim_val_rot_2_.get_state() == RAnimValState::PLAYING
-                    ? bg_change_anim_val_rot_2_.val()
-                    : 0.0f)},
-        {0.0f, 1.0f});
+        {0.0f, display_size.y}, curr_img_uvs.first,
+        {curr_img_uvs.first.x + (curr_img_uvs.second.x - curr_img_uvs.first.x) *
+                                    bg_change_anim_val_rot_1_.val(),
+         curr_img_uvs.first.y},
+        {curr_img_uvs.first.x + (curr_img_uvs.second.x - curr_img_uvs.first.x) *
+                                    bg_change_anim_val_rot_1_.val(),
+         curr_img_uvs.first.y + (curr_img_uvs.second.y - curr_img_uvs.first.y) *
+                                    (bg_change_anim_val_rot_2_.get_state() ==
+                                             RAnimValState::PLAYING
+                                         ? bg_change_anim_val_rot_2_.val()
+                                         : 0.0f)},
+        {curr_img_uvs.first.x, curr_img_uvs.second.y});
+
   } else {
-    draw_list->AddImage(
-        (ImTextureID)cur_bg_->img->get_screen_srvs().at(
-            screen.get_monitor_index()),
-        {0.0f, 0.0f},
-        ImGui::GetIO().DisplaySize * bg_change_anim_val_rot_1_.val());
+    const auto img_uvs = compute_fill_img_uvs(*cur_bg_->img);
+    draw_list->AddImage((ImTextureID)cur_bg_->img->get_screen_srvs().at(
+                            screen.get_monitor_index()),
+                        {0.0f, 0.0f}, display_size, img_uvs.first,
+                        img_uvs.second);
   }
 }
 

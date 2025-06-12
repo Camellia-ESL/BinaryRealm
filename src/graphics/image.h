@@ -17,6 +17,15 @@ typedef void* RpSharedImageHandle;
 typedef void* RpImageSRV;
 
 /*
+ * Contains informations about a single loaded image resource SRV, width,
+ * height, etc..
+ */
+struct RImageResource {
+  RpSharedImageHandle shared_handle;
+  int width, height;
+};
+
+/*
  * Represent's an abstracted image, it contains informations about the image,
  * the file used to load it, all the Image RSV per RendererAPI instance, etc..
  */
@@ -51,9 +60,20 @@ class RImage {
    */
   const r_string& get_name() const { return file_name_; }
 
+  /*
+   * Get's the image width
+   */
+  const int get_width() const { return width_; }
+
+  /*
+   * Get's the image height
+   */
+  const int get_height() const { return height_; }
+
  private:
   r_string file_path_;
   r_string file_name_;
+  int width_, height_;
   RpImageSRV host_srv_;
   RpSharedImageHandle shared_handle_;
   // screen_monitor_index - RpImageSRV keypair

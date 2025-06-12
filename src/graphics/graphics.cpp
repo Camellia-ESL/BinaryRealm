@@ -1,7 +1,7 @@
 #include "graphics.h"
 
 #include "../../external/font-awesome-icons/font_awesome_icons_6.h"
-#include "../config/static_configs.h"
+#include "../app/app.h"
 
 void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   // Check imgui version integrity
@@ -28,7 +28,7 @@ void RIGraphicsApi::init_imgui_(bool enable_viewports) {
   // Load icon fonts
   io.Fonts->AddFontDefault();
 
-  float icon_font_size = RStaticConfigs::FONTS_DEFAULT_SIZE;
+  float icon_font_size = RApp::get().get_main_screen().get_adapted_font_size();
   static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
   ImFontConfig icons_config;
   icons_config.MergeMode = true;

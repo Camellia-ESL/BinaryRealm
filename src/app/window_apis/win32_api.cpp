@@ -17,6 +17,7 @@ void set_window_on_bottom(HWND hwnd);
 RWin32Api::RWin32Api() {}
 
 RWin32Api::~RWin32Api() {
+  graphics_->destroy();
   ::DestroyWindow(hwnd_);
   ::UnregisterClassW(wc_.lpszClassName, wc_.hInstance);
 }

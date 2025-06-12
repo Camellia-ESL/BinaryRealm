@@ -9,15 +9,13 @@
 class RD3D11Api : public RIGraphicsApi {
  public:
   RD3D11Api() = default;
-  ~RD3D11Api() override { destroy(); }
 
   bool init(void* p_native_handle, int left, int top, int right, int bottom,
             bool enable_viewports) override;
   void destroy() override;
   void begin_render() override;
   void render() override;
-  RResult<RpSharedImageHandle> load_img_from_file(
-      const r_string& path) override;
+  RResult<RImageResource> load_img_from_file(const r_string& path) override;
   RResult<RpImageSRV> get_img_from_shared_handle(
       RpSharedImageHandle handle) override;
 

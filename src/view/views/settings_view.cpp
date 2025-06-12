@@ -39,7 +39,10 @@ void RSettingsView::render() {
   ImGui::EndTabBar();
 
   ImGui::SetCursorPos(
-      {ImGui::GetWindowWidth() - 50.0f, ImGui::GetWindowHeight() - 30.0f});
+      {ImGui::GetWindowWidth() -
+           (50.0f * RApp::get().get_main_screen().get_adapted_pixel_size()),
+       ImGui::GetWindowHeight() -
+           (30.0f * RApp::get().get_main_screen().get_adapted_pixel_size())});
   if (ImGui::Button("Save")) {
     RConfigsManager::get().save_all(true);
   }

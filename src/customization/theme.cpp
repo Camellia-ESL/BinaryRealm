@@ -14,7 +14,6 @@
 #include "../view/views/taskbar_view.h"
 #include "theme_serializer.h"
 
-
 const r_string RThemeManager::get_theme_dir_path() {
   return RConfigsManager::get().get_config_dir_path() + "\\themes";
 }
@@ -171,7 +170,8 @@ void RThemeManager::load_fonts_() {
   for (const auto& file_path : dir_read_res.val()) {
     r_string file_path_str = file_path.string();
     ImFont* font_rsc = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        file_path_str.c_str(), RStaticConfigs::FONTS_DEFAULT_SIZE);
+        file_path_str.c_str(),
+        RApp::get().get_main_screen().get_adapted_font_size());
     if (!font_rsc) continue;
 
     auto font_info_buff = std::make_shared<RFont>();

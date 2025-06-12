@@ -49,8 +49,7 @@ class RIGraphicsApi {
    * Load's an image from file then returns the shared handle that can be used
    * to fetch the SRV to pass to ImGui
    */
-  virtual RResult<RpSharedImageHandle> load_img_from_file(
-      const r_string& path) = 0;
+  virtual RResult<RImageResource> load_img_from_file(const r_string& path) = 0;
 
   virtual RResult<RpImageSRV> get_img_from_shared_handle(
       RpSharedImageHandle handle) = 0;

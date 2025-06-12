@@ -34,7 +34,7 @@ class RApp {
   /*
    * Get's the main monitor
    */
-  RScreen& get_main_screen() { return *screens_[0]; }
+  RScreen& get_main_screen() { return *main_screen_; }
 
   /*
    * Get's the host window used as a platform support for viewports
@@ -70,9 +70,12 @@ class RApp {
   std::shared_ptr<RIWindow> host_window_;
   // All the screens
   std::vector<std::shared_ptr<RScreen>> screens_;
+  std::shared_ptr<RScreen> main_screen_;
   // Framerate limiters
   RFrameRateLimiter host_render_fps_limiter_;
   RFrameRateLimiter bg_render_fps_limiter_;
   // Network adapters manager
   RNetworkAdaptersManager network_adapters_mngr_;
+
+  void fetch_and_update_screens_(RWindowApi win_api, RGraphicsApiType gfx_api);
 };

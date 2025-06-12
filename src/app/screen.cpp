@@ -12,3 +12,11 @@ void RScreen::init(RWindowApi win_api, RGraphicsApiType gfx_api) {
   background_window_->init(gfx_api, rect_.left, rect_.top, rect_.right,
                            rect_.bottom, false);
 }
+
+const float RScreen::get_adapted_font_size() const {
+  return RStaticConfigs::FONTS_DEFAULT_SIZE * get_adapted_pixel_size();
+}
+
+const float RScreen::get_adapted_pixel_size() const {
+  return get_height() / 1080.0f;
+}

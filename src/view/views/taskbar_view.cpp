@@ -24,9 +24,11 @@ void RTaskbarView::on_spawn() {
 
 void RTaskbarView::render() {
   ImGui::SetNextWindowPos({TASKBAR_HORIZONTAL_MARGIN, TASKBAR_VERTICAL_MARGIN});
-  ImGui::SetNextWindowSize({RApp::get().get_main_screen().get_width() -
-                                (TASKBAR_HORIZONTAL_MARGIN * 2.0f),
-                            TASKBAR_HEIGHT});
+  ImGui::SetNextWindowSize(
+      {RApp::get().get_main_screen().get_width() -
+           (TASKBAR_HORIZONTAL_MARGIN * 2.0f),
+       TASKBAR_HEIGHT *
+           RApp::get().get_main_screen().get_adapted_pixel_size()});
 
   ImGuiWindowClass window_class;
   window_class.ViewportFlagsOverrideSet =
@@ -37,6 +39,11 @@ void RTaskbarView::render() {
                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
                    ImGuiWindowFlags_NoDecoration |
                    ImGuiWindowFlags_NoFocusOnAppearing);
+
+  // Set Y cursor pos to be centered to the taskbar
+  ImVec2 win_size = ImGui::GetWindowSize();
+  float font_size = ImGui::GetFontSize();
+  ImGui::SetCursorPosY((win_size.y - font_size) * 0.5f);
 
   // Create's support vectors to render on every possible alignment
   std::vector<TaskbarWidget> left_aligned_widgets, center_aligned_widgets,
@@ -68,7 +75,7 @@ void RTaskbarView::render() {
   std::sort(right_aligned_widgets.begin(), right_aligned_widgets.end(),
             sort_by_priority);
 
-  float win_width = ImGui::GetWindowSize().x;
+  float win_width = win_size.x;
   float win_padding = ImGui::GetStyle().WindowPadding.x;
   float content_width = win_width - (win_padding * 2.0f);
 
