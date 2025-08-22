@@ -19,7 +19,7 @@
 ## Examples
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/777147a4-aa13-479c-9684-a1804ec09aee" />
 <img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/99c17207-d6b4-4335-af19-de4ade96ce90" />
-[Watch the demo video]([demo.mp4](https://github.com/user-attachments/assets/eb49d87e-08b5-4e52-87e5-c7a6a32fec06))
+Demo video: https://github.com/user-attachments/assets/eb49d87e-08b5-4e52-87e5-c7a6a32fec06
 
 ## Installation
 
